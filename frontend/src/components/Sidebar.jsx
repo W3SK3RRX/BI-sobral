@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { logout } from '../api/auth'
 import { getTokenPayload } from '../utils/auth'
+import '../styles/sidebar.css'
 
 const Sidebar = () => {
   const navigate = useNavigate()

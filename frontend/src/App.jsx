@@ -6,7 +6,7 @@ import AdminPanel from './pages/AdminPanel'
 import DashboardForm from './pages/DashboardForm'
 import UserForm from './pages/UserForm'
 import RequireAuth from './components/RequireAuth'
-import './App.css'
+//import './App.css'
 
 function App() {
   return (

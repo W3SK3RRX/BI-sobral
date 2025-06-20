@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getDashboards } from '../api/dashboard'
-import Sidebar from '../components/Sidebar'
+import Navbar from '../components/Navbar'
+import '../styles/home.css'
 
 const Home = () => {
   const [dashboards, setDashboards] = useState([])
@@ -25,9 +26,9 @@ const Home = () => {
 
   return (
     <>
-      <Sidebar />
+      <Navbar />
       <div className="main-content">
-        <h1>Meus Dashboards</h1>
+        <h1>Power BI - Sobral</h1>
 
         <label>Filtrar por categoria:</label>
         <select

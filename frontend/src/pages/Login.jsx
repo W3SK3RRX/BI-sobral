@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { login } from '../api/auth'
+import '../styles/login.css'
 
 const Login = () => {
   const [email, setEmail] = useState('')
@@ -24,26 +25,33 @@ const Login = () => {
   }
 
   return (
-    <div className="login-container">
-      <h2>Login</h2>
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="E-mail"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
+    <div className="login-page">
+      <div className="login-container">
+        <img
+          src="/media/logo.png"
+          alt="Logo Laboratório Sobral"
+          className="login-logo"
         />
-        <input
-          type="password"
-          placeholder="Senha"
-          value={senha}
-          onChange={(e) => setSenha(e.target.value)}
-          required
-        />
-        <button type="submit">Entrar</button>
-        {erro && <p className="erro">{erro}</p>}
-      </form>
+        <h2>Power BI - Sobral</h2>
+        <form onSubmit={handleLogin}>
+          <input
+            type="email"
+            placeholder="E-mail"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Senha"
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
+            required
+          />
+          <button type="submit">Entrar</button>
+          {erro && <p className="erro">{erro}</p>}
+        </form>
+      </div>
     </div>
   )
 }
