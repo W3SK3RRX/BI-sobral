@@ -20,8 +20,15 @@ const Login = () => {
 
       navigate('/dashboard')
     } catch (err) {
-      setErro('E-mail ou senha inválidos.')
+      const erroMsg = err.response?.data?.detail || 'E-mail ou senha inválidos.'
+
+      if (erroMsg.toLowerCase().includes('senha expirou')) {
+        navigate('/trocar-senha')
+      } else {
+        setErro(erroMsg)
+      }
     }
+
   }
 
   return (
@@ -54,6 +61,7 @@ const Login = () => {
       </div>
     </div>
   )
+
 }
 
 export default Login

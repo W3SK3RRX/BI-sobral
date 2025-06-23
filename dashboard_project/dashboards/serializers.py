@@ -1,5 +1,11 @@
 from rest_framework import serializers
 from .models import User, Category, Dashboard
+from rest_framework import serializers
+from django.utils import timezone
+
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -20,11 +26,37 @@ class UserSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = "__all__"
+        fields = ['id', 'name']
+
 
 class DashboardSerializer(serializers.ModelSerializer):
+    categoria = serializers.CharField(source='categoria.name', read_only=True)
+    usuarios_permitidos = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=User.objects.all(), required=False
+    )
+
     class Meta:
         model = Dashboard
-        fields = "__all__"
+        fields = [
+            'id', 'nome', 'descricao', 'link', 'categoria',
+            'nivel_minimo', 'usuarios_permitidos'
+        ]
 
+
+
+class TrocarSenhaSerializer(serializers.Serializer):
+    nova_senha = serializers.CharField(write_only=True, min_length=6)
+
+    def validate_nova_senha(self, nova_senha):
+        user = self.context['request'].user
+        if user.check_password(nova_senha):
+            raise serializers.ValidationError("A nova senha não pode ser igual à anterior.")
+        return nova_senha
+
+    def save(self):
+        user = self.context['request'].user
+        user.set_password(self.validated_data['nova_senha'])
+        user.senha_alterada_em = timezone.now()
+        user.save()
+        return user
 

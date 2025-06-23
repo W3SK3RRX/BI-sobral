@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils import timezone
+from datetime import timedelta
 
 class User(AbstractUser):
     USER_LEVELS = (
@@ -9,6 +11,12 @@ class User(AbstractUser):
     )
     email = models.EmailField(unique=True)
     access_level = models.CharField(max_length=10, choices=USER_LEVELS, default='USUARIO')
+    senha_alterada_em = models.DateTimeField(auto_now_add=True)
+
+    def senha_expirada(self):
+        if self.access_level == 'ADMIN':
+            return False
+        return timezone.now() > self.senha_alterada_em + timedelta(days=30)
 
 
 class Category(models.Model):
@@ -33,6 +41,9 @@ class Dashboard(models.Model):
     nivel_minimo = models.CharField(max_length=10, choices=nivel_minimo_choices, default='USUARIO')
     criado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='created_dashboards')
     criado_em = models.DateTimeField(auto_now_add=True)
+
+    # Novo campo: usuários específicos que podem visualizar
+    usuarios_permitidos = models.ManyToManyField(User, related_name='dashboards_exclusivos', blank=True)
 
     def __str__(self):
         return self.nome

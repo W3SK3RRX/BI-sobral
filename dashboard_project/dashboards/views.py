@@ -6,17 +6,17 @@ from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth import get_user_model
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-
 from .models import User, Category, Dashboard
 from .serializers import UserSerializer, CategorySerializer, DashboardSerializer
+from .serializers import TrocarSenhaSerializer
+from django.db.models import Q
 
 # 🔐 View personalizada para login via e-mail
 UserModel = get_user_model()
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
-        email = attrs.get("username")  # o frontend ainda manda como "username"
+        email = attrs.get("username")  # frontend envia "username", mas é o e-mail
         password = attrs.get("password")
 
         try:
@@ -27,6 +27,11 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         if not user.check_password(password):
             raise AuthenticationFailed("Senha incorreta.")
 
+        # 🔐 Verifica se a senha expirou
+        if user.senha_expirada():
+            raise AuthenticationFailed("Sua senha expirou. Por favor, altere sua senha para continuar.")
+
+        # Gera token
         data = super().get_token(user)
         return {
             "access": str(data.access_token),
@@ -37,9 +42,21 @@ class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
 
+#@api_view(['GET'])
+#@permission_classes([IsAuthenticated])
+#def me_view(request):
+#    user = request.user
+#    return Response({
+#        "id": user.id,
+#        "username": user.username,
+#        "email": user.email,
+#        "access_level": user.access_level,
+#    })
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def me_view(request):
+def get_me(request):
     user = request.user
     return Response({
         "id": user.id,
@@ -49,16 +66,19 @@ def me_view(request):
     })
 
 
+
 # 👤 Views de gerenciamento
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAdminUser]
 
+
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAdminUser]
+
 
 class DashboardViewSet(viewsets.ModelViewSet):
     serializer_class = DashboardSerializer
@@ -66,9 +86,25 @@ class DashboardViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_superuser or user.access_level == 'ADMIN':
-            return Dashboard.objects.all()
+
+        if user.access_level == 'ADMIN':
+            niveis_permitidos = ['ADMIN', 'GESTOR', 'USUARIO']
         elif user.access_level == 'GESTOR':
-            return Dashboard.objects.filter(nivel_minimo__in=['GESTOR', 'USUARIO'])
+            niveis_permitidos = ['GESTOR', 'USUARIO']
         else:
-            return Dashboard.objects.filter(nivel_minimo='USUARIO')
+            niveis_permitidos = ['USUARIO']
+
+        return Dashboard.objects.filter(
+            Q(nivel_minimo__in=niveis_permitidos) |
+            Q(usuarios_permitidos=user)
+        ).distinct()
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def trocar_senha(request):
+    serializer = TrocarSenhaSerializer(data=request.data, context={'request': request})
+    if serializer.is_valid():
+        serializer.save()
+        return Response({'mensagem': 'Senha alterada com sucesso.'})
+    return Response(serializer.errors, status=400)

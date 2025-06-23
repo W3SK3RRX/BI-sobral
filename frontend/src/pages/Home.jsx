@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getDashboards } from '../api/dashboard'
+import { getDashboards } from '../api/dashboard'  // usa api/axios.js
 import Navbar from '../components/Navbar'
 import '../styles/home.css'
 

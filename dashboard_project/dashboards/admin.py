@@ -4,10 +4,22 @@ from .models import User, Category, Dashboard
 
 class CustomUserAdmin(BaseUserAdmin):
     fieldsets = BaseUserAdmin.fieldsets + (
-        ('Nível de Acesso', {'fields': ('access_level',)}),
+        ('Nível de Acesso e Expiração de Senha', {
+            'fields': ('access_level', 'senha_alterada_em'),
+        }),
     )
-    list_display = ('username', 'email', 'first_name', 'last_name', 'access_level', 'is_staff')
+
+    readonly_fields = ('senha_alterada_em',)  # impede edição direta por padrão
+
+    list_display = (
+        'username', 'email', 'first_name', 'last_name',
+        'access_level', 'is_staff', 'senha_alterada_em'
+    )
+
     list_filter = ('access_level', 'is_staff', 'is_superuser', 'is_active')
+
+    ordering = ('-senha_alterada_em',)
+
 
 admin.site.register(User, CustomUserAdmin)
 

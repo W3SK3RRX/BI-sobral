@@ -1,10 +1,8 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import {
-  createUser,
-  updateUser,
-  getUserById
-} from '../api/admin'
+import { createUser, updateUser, getUserById } from '../api/admin'
+import '../styles/home.css'
+import '../styles/userform.css'
 
 const UserForm = () => {
   const { id } = useParams()
@@ -52,45 +50,62 @@ const UserForm = () => {
   }
 
   return (
-    <div className="form-container">
-      <h2>{editando ? 'Editar' : 'Novo'} Usuário</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          name="username"
-          placeholder="Nome de usuário"
-          value={form.username}
-          onChange={handleChange}
-          required
-        />
-        <input
-          name="email"
-          placeholder="E-mail"
-          value={form.email}
-          onChange={handleChange}
-          required
-        />
-        {!editando && (
+    <div className="user-form-container">
+      <h2>{editando ? 'Editar Usuário' : 'Cadastrar Novo Usuário'}</h2>
+      <form onSubmit={handleSubmit} className="user-form">
+        <div className="form-group">
+          <label>Nome de usuário:</label>
           <input
-            type="password"
-            name="password"
-            placeholder="Senha"
-            value={form.password}
+            name="username"
+            value={form.username}
             onChange={handleChange}
             required
           />
-        )}
-        <select
-          name="access_level"
-          value={form.access_level}
-          onChange={handleChange}
-        >
-          <option value="USUARIO">Usuário</option>
-          <option value="GESTOR">Gestor</option>
-          <option value="ADMIN">Administrador</option>
-        </select>
+        </div>
 
-        <button type="submit">Salvar</button>
-        <button type="button" onClick={() => navigate('/admin')}>Cancelar</button>
+        <div className="form-group">
+          <label>E-mail:</label>
+          <input
+            name="email"
+            type="email"
+            value={form.email}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        {!editando && (
+          <div className="form-group">
+            <label>Senha:</label>
+            <input
+              name="password"
+              type="password"
+              value={form.password}
+              onChange={handleChange}
+              required
+            />
+          </div>
+        )}
+
+        <div className="form-group">
+          <label>Nível de Acesso:</label>
+          <select
+            name="access_level"
+            value={form.access_level}
+            onChange={handleChange}
+          >
+            <option value="USUARIO">Usuário</option>
+            <option value="GESTOR">Gestor</option>
+            <option value="ADMIN">Administrador</option>
+          </select>
+        </div>
+
+        <div className="form-actions">
+          <button type="submit" className="btn-salvar">Salvar</button>
+          <button type="button" className="btn-cancelar" onClick={() => navigate('/admin')}>
+            Cancelar
+          </button>
+        </div>
       </form>
     </div>
   )
