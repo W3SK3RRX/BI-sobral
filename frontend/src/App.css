@@ -3,7 +3,7 @@ html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
-  background-color: black;
+  background-color: rgb(0, 0, 0);
   font-family: sans-serif;
 }
 
@@ -11,7 +11,7 @@ html, body, #root {
 .login-container {
   max-width: 400px;
   margin: 10% auto;
-  background: #1a1a1a;
+  background: #636363;
   padding: 2rem;
   border-radius: 12px;
   color: white;

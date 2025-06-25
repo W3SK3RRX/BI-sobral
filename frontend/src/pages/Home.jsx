@@ -28,7 +28,7 @@ const Home = () => {
     <>
       <Navbar />
       <div className="main-content">
-        <h1>Power BI - Sobral</h1>
+        <h1>Power BI - Sobral 🎯</h1>
 
         <label>Filtrar por categoria:</label>
         <select

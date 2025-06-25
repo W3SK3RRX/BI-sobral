@@ -12,6 +12,7 @@
   top: 0;
   z-index: 999;
   overflow-x: hidden;
+  border-bottom: 2px solid #ff771b;
 }
 
 .navbar-left {
@@ -50,11 +51,11 @@
 
 .navbar .voltar-btn {
   background-color: #837d7d;
-  font-size: 0.9rem;
+  
 }
 
 .navbar .voltar-btn:hover {
-  background-color: #837d7d;
+  background-color: #5c5959;
 }
 
 .navbar-logo {

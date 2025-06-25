@@ -38,8 +38,8 @@ const Navbar = () => {
 
         {location.pathname !== '/dashboard' && (
           <>
-            <button className="voltar-btn" onClick={handleVoltar}>⬅ Voltar</button>
-            <button className="home-btn" onClick={handleIrParaHome}>Home</button>
+            <button className="voltar-btn" onClick={handleIrParaHome}>⬅ Voltar</button>
+            {/*<button className="home-btn" onClick={handleIrParaHome}>Home</button>*/}
           </>
         )}
       </div>
