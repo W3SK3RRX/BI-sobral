@@ -19,5 +19,5 @@ urlpatterns = [
     path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('me/', get_me),
-    path('api/trocar-senha/', trocar_senha),
+    path('trocar-senha/', trocar_senha),
 ]

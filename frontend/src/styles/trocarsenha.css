@@ -1,0 +1,80 @@
+.login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #5a5a5a;
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #1e1e1e;
+  color: white;
+  width: 100%;
+  max-width: 380px;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  text-align: center;
+  border: 2px solid #ff6a00;
+}
+
+.login-logo {
+  width: 120px;
+  margin: 0 auto 1.5rem;
+  display: block;
+}
+
+.login-container h2 {
+  margin-bottom: 1.5rem;
+}
+
+.login-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.login-container input {
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #2a2a2a;
+  color: white;
+  font-size: 1rem;
+}
+
+.login-container input::placeholder {
+  color: #ccc;
+}
+
+.login-container button {
+  padding: 12px;
+  background: #ff6a00;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.login-container button:hover {
+  background: #e65c00;
+}
+
+.login-container .erro {
+  color: #ff4d4d;
+  font-size: 0.9rem;
+  margin-top: 10px;
+}
+
+
+.sucesso {
+  color: #28db78;
+  font-size: 0.9rem;
+  margin-top: 10px;
+}

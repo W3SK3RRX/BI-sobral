@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { login } from '../api/auth'
+import { login, getMe } from '../api/auth'
 import '../styles/login.css'
 
 const Login = () => {
@@ -18,17 +18,24 @@ const Login = () => {
       localStorage.setItem('access', response.data.access)
       localStorage.setItem('refresh', response.data.refresh)
 
-      navigate('/dashboard')
+      // Verifica se é primeiro acesso
+      const resUsuario = await getMe()
+      if (resUsuario.data?.primeiro_acesso) {
+        navigate('/trocar-senha')
+      } else {
+        navigate('/dashboard')
+      }
+
     } catch (err) {
       const erroMsg = err.response?.data?.detail || 'E-mail ou senha inválidos.'
 
+      // Redireciona mesmo que o backend diga explicitamente "senha expirada"
       if (erroMsg.toLowerCase().includes('senha expirou')) {
         navigate('/trocar-senha')
       } else {
         setErro(erroMsg)
       }
     }
-
   }
 
   return (
@@ -61,7 +68,6 @@ const Login = () => {
       </div>
     </div>
   )
-
 }
 
 export default Login

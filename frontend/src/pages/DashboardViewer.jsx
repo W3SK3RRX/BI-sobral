@@ -44,8 +44,8 @@ const DashboardViewer = () => {
     <>
       <Navbar />
       <div className="viewer-container">
-        <Protections />
         <Watermark />
+        <Protections />
         <iframe
           src={dashboard.link}
           title={dashboard.nome}

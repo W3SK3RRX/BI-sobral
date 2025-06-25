@@ -13,6 +13,8 @@ class User(AbstractUser):
     access_level = models.CharField(max_length=10, choices=USER_LEVELS, default='USUARIO')
     senha_alterada_em = models.DateTimeField(auto_now_add=True)
 
+    primeiro_acesso = models.BooleanField(default=True)  # 👈 NOVO
+
     def senha_expirada(self):
         if self.access_level == 'ADMIN':
             return False

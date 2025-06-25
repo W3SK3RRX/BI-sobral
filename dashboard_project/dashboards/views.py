@@ -10,6 +10,8 @@ from .models import User, Category, Dashboard
 from .serializers import UserSerializer, CategorySerializer, DashboardSerializer
 from .serializers import TrocarSenhaSerializer
 from django.db.models import Q
+from django.utils import timezone
+
 
 # 🔐 View personalizada para login via e-mail
 UserModel = get_user_model()
@@ -63,8 +65,8 @@ def get_me(request):
         "username": user.username,
         "email": user.email,
         "access_level": user.access_level,
+        "primeiro_acesso": user.primeiro_acesso  # 👈 adicione isso
     })
-
 
 
 # 👤 Views de gerenciamento
@@ -106,5 +108,12 @@ def trocar_senha(request):
     serializer = TrocarSenhaSerializer(data=request.data, context={'request': request})
     if serializer.is_valid():
         serializer.save()
+
+        # 👇 Após trocar a senha, atualiza o campo primeiro_acesso
+        user = request.user
+        user.primeiro_acesso = False
+        user.senha_alterada_em = timezone.now()
+        user.save()
+
         return Response({'mensagem': 'Senha alterada com sucesso.'})
     return Response(serializer.errors, status=400)

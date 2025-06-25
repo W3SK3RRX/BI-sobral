@@ -7,7 +7,8 @@ import DashboardForm from './pages/DashboardForm'
 import UserForm from './pages/UserForm'
 import RequireAuth from './components/RequireAuth'
 import ResetPassword from './pages/ResetPassword.jsx'
-//import './App.css'
+import TrocarSenha from './pages/TrocarSenha.jsx'
+//<Route path="/trocar-senha" element={<ResetPassword />} />
 
 function App() {
   return (
@@ -21,7 +22,8 @@ function App() {
         <Route path="/admin/editar-dashboard/:id" element={<DashboardForm />} />
         <Route path="/admin/novo-usuario" element={<UserForm />} />
         <Route path="/admin/editar-usuario/:id" element={<UserForm />} />
-        <Route path="/trocar-senha" element={<ResetPassword />} />
+        
+        <Route path="/trocar-senha" element={<TrocarSenha />} />
       </Routes>
     </BrowserRouter>
   )

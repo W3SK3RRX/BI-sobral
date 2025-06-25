@@ -22,3 +22,20 @@
   user-select: none;
   z-index: 999;
 }
+
+.dashboard-frame {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+
+@media print {
+  body {
+    display: none !important;
+  }
+
+  .viewer-container,
+  .dashboard-frame {
+    display: none !important;
+  }
+}
