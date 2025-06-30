@@ -139,25 +139,12 @@ export const DashboardCard = ({ dashboard, index }) => {
               )}
             </motion.div>
             
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <div className="flex items-center space-x-1">
-                <Calendar className="w-3 h-3" />
-                <span>Criado em {formatDate(dashboard.criado_em)}</span>
-              </div>
-              {dashboard.criado_por && (
-                <div className="flex items-center space-x-1">
-                  <User className="w-3 h-3" />
-                  <span>{dashboard.criado_por.username}</span>
-                </div>
-              )}
-            </div>
-            
             <div className="flex gap-2">
               <Button
                 onClick={handleTogglePreview}
                 variant="outline"
                 size="sm"
-                className="flex-1 border-orange-200 hover:bg-orange-50"
+                className="flex-1 border-orange-200"
               >
                 <Eye className="w-4 h-4 mr-2" />
                 {showPreview ? 'Ocultar' : 'Pré-visualizar'}
@@ -165,7 +152,7 @@ export const DashboardCard = ({ dashboard, index }) => {
               
               <Button
                 onClick={handleOpenDashboard}
-                className="flex-1 bg-gradient-orange hover:shadow-orange transition-all duration-200"
+                className="flex-1 border-orange-200 "
                 size="sm"
               >
                 <Maximize2 className="w-4 h-4 mr-2" />

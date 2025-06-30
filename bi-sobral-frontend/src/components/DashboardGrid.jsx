@@ -1,16 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { dashboardAPI } from '@/lib/api';
 import { DashboardCard } from './DashboardCard';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Search, Filter, Grid3X3, List, BarChart3 } from 'lucide-react';
+import { Search, BarChart3 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSearchParams } from 'react-router-dom';
 
 export const DashboardGrid = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const selectedCategory = searchParams.get('categoria') || 'all';
   const [selectedLevel, setSelectedLevel] = useState('all');
   const [viewMode, setViewMode] = useState('grid');
 
@@ -25,26 +28,23 @@ export const DashboardGrid = () => {
   });
 
   const filteredDashboards = dashboards.filter(dashboard => {
-    const matchesSearch = dashboard.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         dashboard.descricao?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesCategory = selectedCategory === 'all' || 
-                           dashboard.categoria?.id.toString() === selectedCategory;
-    
-    const matchesLevel = selectedLevel === 'all' || 
-                        dashboard.nivel_minimo === selectedLevel;
+    const matchesSearch =
+      dashboard.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      dashboard.descricao?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesCategory =
+      selectedCategory === 'all' ||
+      (dashboard.categoria &&
+        (typeof dashboard.categoria === 'object'
+          ? String(dashboard.categoria.id)
+          : String(dashboard.categoria)) === selectedCategory);
+
+    const matchesLevel =
+      selectedLevel === 'all' ||
+      dashboard.nivel_minimo === selectedLevel;
 
     return matchesSearch && matchesCategory && matchesLevel;
   });
-
-  const getLevelText = (level) => {
-    switch (level) {
-      case 'ADMIN': return 'Administrador';
-      case 'GESTOR': return 'Gestor';
-      case 'USUARIO': return 'Usuário';
-      default: return level;
-    }
-  };
 
   if (dashboardsLoading) {
     return (
@@ -93,8 +93,19 @@ export const DashboardGrid = () => {
               className="pl-10 border-gradient-orange focus:ring-primary"
             />
           </div>
-          
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+
+          <Select
+            value={selectedCategory}
+            onValueChange={(value) => {
+              const newParams = new URLSearchParams(searchParams);
+              if (value === 'all') {
+                newParams.delete('categoria');
+              } else {
+                newParams.set('categoria', value);
+              }
+              setSearchParams(newParams);
+            }}
+          >
             <SelectTrigger className="w-full sm:w-48 border-gradient-orange">
               <SelectValue placeholder="Categoria" />
             </SelectTrigger>
@@ -105,18 +116,6 @@ export const DashboardGrid = () => {
                   {category.name}
                 </SelectItem>
               ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={selectedLevel} onValueChange={setSelectedLevel}>
-            <SelectTrigger className="w-full sm:w-48 border-gradient-orange">
-              <SelectValue placeholder="Nível de acesso" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os níveis</SelectItem>
-              <SelectItem value="USUARIO">Usuário</SelectItem>
-              <SelectItem value="GESTOR">Gestor</SelectItem>
-              <SelectItem value="ADMIN">Administrador</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -161,4 +160,3 @@ export const DashboardGrid = () => {
     </div>
   );
 };
-

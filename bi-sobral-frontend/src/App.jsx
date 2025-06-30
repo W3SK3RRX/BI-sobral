@@ -4,8 +4,10 @@ import { AuthProvider } from '@/hooks/useAuth.jsx';
 import { LoginPage } from '@/pages/LoginPage';
 import { ChangePasswordPage } from '@/pages/ChangePasswordPage';
 import { DashboardPage } from '@/pages/DashboardPage';
-import { TestPage } from '@/pages/TestPage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+import AdminPanel from '@/pages/AdminPanel'
+import NovoDashboard from '@/pages/NovoDashboard';
+
 import './App.css';
 
 // Configuração do React Query
@@ -26,24 +28,40 @@ function App() {
           <div className="App">
             <Routes>
               <Route path="/login" element={<LoginPage />} />
-              <Route 
-                path="/change-password" 
+              <Route
+                path="/change-password"
                 element={
                   <ProtectedRoute>
                     <ChangePasswordPage />
                   </ProtectedRoute>
-                } 
+                }
               />
-              <Route 
-                path="/dashboard" 
+              <Route
+                path="/dashboard"
                 element={
                   <ProtectedRoute>
                     <DashboardPage />
                   </ProtectedRoute>
-                } 
+                }
               />
-              <Route path="/" element={<Navigate to="/test" replace />} />
-              <Route path="*" element={<Navigate to="/test" replace />} />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute requiredAccessLevel="ADMIN">
+                    <AdminPanel />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/novo-dashboard"
+                element={
+                  <ProtectedRoute requiredAccessLevel="ADMIN">
+                    <NovoDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
             </Routes>
           </div>
         </Router>

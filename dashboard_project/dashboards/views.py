@@ -11,7 +11,7 @@ from .serializers import UserSerializer, CategorySerializer, DashboardSerializer
 from .serializers import TrocarSenhaSerializer
 from django.db.models import Q
 from django.utils import timezone
-
+from dashboards.permissions import ReadOnlyOrAdmin
 
 # 🔐 View personalizada para login via e-mail
 UserModel = get_user_model()
@@ -79,7 +79,7 @@ class UserViewSet(viewsets.ModelViewSet):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [ReadOnlyOrAdmin]
 
 
 class DashboardViewSet(viewsets.ModelViewSet):
