@@ -7,6 +7,9 @@ import { DashboardPage } from '@/pages/DashboardPage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import AdminPanel from '@/pages/AdminPanel'
 import NovoDashboard from '@/pages/NovoDashboard';
+import EditarDashboard from '@/pages/EditarDashboard';
+import NovoUsuario from '@/pages/NovoUsuario';
+import EditarUsuario from '@/pages/EditarUsuario';
 
 import './App.css';
 
@@ -57,6 +60,33 @@ function App() {
                 element={
                   <ProtectedRoute requiredAccessLevel="ADMIN">
                     <NovoDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/admin/editar-dashboard/:id"
+                element={
+                  <ProtectedRoute requiredAccessLevel="ADMIN">
+                    <EditarDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/admin/novo-usuario"
+                element={
+                  <ProtectedRoute requiredAccessLevel="ADMIN">
+                    <NovoUsuario />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/admin/editar-usuario/:id"
+                element={
+                  <ProtectedRoute requiredAccessLevel="ADMIN">
+                    <EditarUsuario />
                   </ProtectedRoute>
                 }
               />

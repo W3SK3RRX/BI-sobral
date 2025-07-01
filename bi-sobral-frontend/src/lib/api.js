@@ -93,6 +93,16 @@ export const dashboardAPI = {
     return response.data;
   },
 
+  getDashboardById: async (id) => {
+    const response = await api.get(`/dashboards/${id}/`);
+    return response.data;
+  },
+
+  updateDashboard: async (id, data) => {
+    const response = await api.put(`/dashboards/${id}/`, data);
+    return response.data;
+  },
+
   getCategories: async () => {
     const response = await api.get('/categories/');
     return response.data;
@@ -109,27 +119,34 @@ export const dashboardAPI = {
   },
 };
 
+
 // Admin: gerenciamento de usuários
 export const userAPI = {
   getUsers: async () => {
-    const response = await api.get('/usuarios/');
+    const response = await api.get('/users/');
+    return response.data;
+  },
+
+  getUser: async (id) => {
+    const response = await api.get(`/users/${id}/`);
     return response.data;
   },
 
   createUser: async (data) => {
-    const response = await api.post('/usuarios/', data);
+    const response = await api.post('/users/', data);
     return response.data;
   },
 
   updateUser: async (id, data) => {
-    const response = await api.put(`/usuarios/${id}/`, data);
+    const response = await api.patch(`/users/${id}/`, data);
     return response.data;
   },
 
   deleteUser: async (id) => {
-    const response = await api.delete(`/usuarios/${id}/`);
+    const response = await api.delete(`/users/${id}/`);
     return response.data;
   },
 };
+
 
 export default api;

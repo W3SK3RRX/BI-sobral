@@ -15,7 +15,7 @@ export const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -25,7 +25,7 @@ export const LoginForm = () => {
     setLoading(true);
 
     const result = await login(email, password);
-    
+
     if (result.success) {
       // Verificar se é primeiro acesso
       if (result.user.primeiro_acesso) {
@@ -36,7 +36,7 @@ export const LoginForm = () => {
     } else {
       setError(result.error);
     }
-    
+
     setLoading(false);
   };
 
@@ -50,24 +50,27 @@ export const LoginForm = () => {
       >
         <Card className="shadow-orange-lg border-0">
           <CardHeader className="text-center space-y-4">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-              className="mx-auto w-16 h-16 bg-gradient-orange rounded-full flex items-center justify-center"
-            >
-              <BarChart3 className="w-8 h-8 text-white" />
-            </motion.div>
-            <div>
-              <CardTitle className="text-2xl font-bold text-gradient-orange">
-                BI Sobral
+            
+
+            <div className="flex flex-col items-center space-y-3">
+              <img
+                src="/media/logo.png"
+                alt="Logo BI Sobral"
+                className="w-16 h-16 object-contain"
+              />
+
+              <CardTitle className="text-2xl font-extrabold text-gradient-orange tracking-tight">
+                PowerBI - Sobral
               </CardTitle>
-              <CardDescription className="text-muted-foreground">
-                Dashboard Inteligente para Gestão Municipal
+
+              <CardDescription className="text-muted-foreground max-w-md text-sm sm:text-base">
+                Sistema de visualização de dashboards e relatórios
               </CardDescription>
             </div>
           </CardHeader>
-          
+
+
+
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
@@ -81,7 +84,7 @@ export const LoginForm = () => {
                   </Alert>
                 </motion.div>
               )}
-              
+
               <div className="space-y-2">
                 <Label htmlFor="email">E-mail</Label>
                 <div className="relative">
@@ -97,7 +100,7 @@ export const LoginForm = () => {
                   />
                 </div>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="password">Senha</Label>
                 <div className="relative">
@@ -120,10 +123,10 @@ export const LoginForm = () => {
                   </button>
                 </div>
               </div>
-              
+
               <Button
                 type="submit"
-                className="w-full bg-gradient-orange hover:shadow-orange transition-all duration-200 hover-lift"
+                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold transition-colors"
                 disabled={loading}
               >
                 {loading ? (
@@ -139,15 +142,7 @@ export const LoginForm = () => {
             </form>
           </CardContent>
         </Card>
-        
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="text-center text-sm text-muted-foreground mt-6"
-        >
-          Sistema de Business Intelligence da Prefeitura de Sobral
-        </motion.p>
+
       </motion.div>
     </div>
   );

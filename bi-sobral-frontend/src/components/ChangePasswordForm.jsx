@@ -216,7 +216,7 @@ export const ChangePasswordForm = () => {
               
               <Button
                 type="submit"
-                className="w-full bg-gradient-orange hover:shadow-orange transition-all duration-200 hover-lift"
+                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold transition-colors"
                 disabled={loading || !isPasswordValid || !passwordsMatch}
               >
                 {loading ? (
