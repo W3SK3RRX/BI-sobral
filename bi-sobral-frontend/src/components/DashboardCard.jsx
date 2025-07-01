@@ -2,28 +2,15 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, BarChart3, Calendar, User, Maximize2, Eye } from 'lucide-react';
+import { BarChart3, Maximize2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { FullscreenModal } from './FullscreenModal';
 
 export const DashboardCard = ({ dashboard, index }) => {
-  const [showPreview, setShowPreview] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [previewLoading, setPreviewLoading] = useState(true);
 
   const handleOpenDashboard = () => {
     setIsFullscreen(true);
-  };
-
-  const handleTogglePreview = () => {
-    setShowPreview(!showPreview);
-    if (!showPreview) {
-      setPreviewLoading(true);
-    }
-  };
-
-  const handlePreviewLoad = () => {
-    setPreviewLoading(false);
   };
 
   const formatDate = (dateString) => {
@@ -103,53 +90,7 @@ export const DashboardCard = ({ dashboard, index }) => {
               </p>
             )}
 
-            {/* Preview Section */}
-            <motion.div
-              initial={false}
-              animate={{ height: showPreview ? 'auto' : 0 }}
-              transition={{ duration: 0.3 }}
-              className="overflow-hidden"
-            >
-              {showPreview && (
-                <div className="relative bg-gray-50 rounded-lg overflow-hidden border">
-                  {previewLoading && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-gradient-orange-light z-10">
-                      <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                        className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full"
-                      />
-                    </div>
-                  )}
-                  <iframe
-                    src={dashboard.link}
-                    className="w-full h-48 border-0"
-                    title={`Preview ${dashboard.nome}`}
-                    onLoad={handlePreviewLoad}
-                    sandbox="allow-same-origin allow-scripts allow-forms"
-                    referrerPolicy="strict-origin-when-cross-origin"
-                    style={{ 
-                      transform: 'scale(0.7)', 
-                      transformOrigin: 'top left',
-                      width: '142.86%',
-                      height: '142.86%'
-                    }}
-                  />
-                </div>
-              )}
-            </motion.div>
-            
             <div className="flex gap-2">
-              <Button
-                onClick={handleTogglePreview}
-                variant="outline"
-                size="sm"
-                className="flex-1 border-orange-200"
-              >
-                <Eye className="w-4 h-4 mr-2" />
-                {showPreview ? 'Ocultar' : 'Pré-visualizar'}
-              </Button>
-              
               <Button
                 onClick={handleOpenDashboard}
                 className="flex-1 border-orange-200 "
@@ -163,7 +104,6 @@ export const DashboardCard = ({ dashboard, index }) => {
         </Card>
       </motion.div>
 
-      {/* Fullscreen Modal */}
       <FullscreenModal
         isOpen={isFullscreen}
         onClose={() => setIsFullscreen(false)}
@@ -173,4 +113,3 @@ export const DashboardCard = ({ dashboard, index }) => {
     </>
   );
 };
-
