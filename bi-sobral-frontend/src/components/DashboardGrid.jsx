@@ -32,12 +32,11 @@ export const DashboardGrid = () => {
       dashboard.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
       dashboard.descricao?.toLowerCase().includes(searchTerm.toLowerCase());
 
+    const selectedCategoryName = categories.find(cat => String(cat.id) === selectedCategory)?.name || '';
+
     const matchesCategory =
       selectedCategory === 'all' ||
-      (dashboard.categoria &&
-        (typeof dashboard.categoria === 'object'
-          ? String(dashboard.categoria.id)
-          : String(dashboard.categoria)) === selectedCategory);
+      dashboard.categoria === selectedCategoryName;
 
     const matchesLevel =
       selectedLevel === 'all' ||
@@ -45,6 +44,11 @@ export const DashboardGrid = () => {
 
     return matchesSearch && matchesCategory && matchesLevel;
   });
+
+  console.log('Categoria selecionada:', selectedCategory);
+  console.log('Dashboards recebidos:', dashboards);
+  console.log('Dashboards filtrados:', filteredDashboards);
+
 
   if (dashboardsLoading) {
     return (
