@@ -1,101 +1,107 @@
-# Sistema de Visualização de Dashboards Power BI com Controle de Acesso
+# 📊 PowerBI Sobral — Sistema de Visualização de Dashboards
 
-Este projeto consiste em um sistema web para visualização de dashboards Power BI com controle de acesso robusto, níveis de permissão e medidas de segurança para proteger informações sensíveis.
+Sistema completo para visualização e gerenciamento de dashboards interativos, desenvolvido para uso interno da equipe do **Laboratório Sobral**. Permite o acesso segmentado a relatórios do Power BI, categorização por setor, controle de permissões e interface moderna.
 
-## Estrutura do Projeto
+---
 
-O projeto é dividido em duas partes principais:
+## 🚀 Funcionalidades
 
-- **Backend**: Desenvolvido com Django e Django REST Framework.
-- **Frontend**: Desenvolvido com React.js.
+- 🔐 **Login com autenticação**
+- 👤 **Controle de acesso por nível** (ADMIN, GESTOR, USUARIO)
+- 🗂️ **Filtragem por categorias**
+- 🔍 **Busca inteligente por nome ou descrição**
+- 📈 **Cards visuais com contagem e descrição**
+- 🖼️ **Abertura em tela cheia (modal fullscreen)**
+- 🎨 **Interface elegante com animações**
+- 📚 **Integração com banco de dados**
+- 🧑‍💻 **Painel de administração para cadastro de dashboards**
 
-## Requisitos
+---
 
-Para rodar este projeto, você precisará ter instalado:
+## 🛠️ Tecnologias utilizadas
 
-- Python 3.x
-- Node.js e pnpm
-- PostgreSQL (ou configurar outro banco de dados no Django)
+| Tecnologia         | Finalidade                           |
+|--------------------|---------------------------------------|
+| **React + Vite**   | Frontend moderno e rápido             |
+| **Tailwind CSS**   | Estilização responsiva e elegante     |
+| **Framer Motion**  | Animações suaves                     |
+| **React Router**   | Gerenciamento de rotas                |
+| **React Query**    | Controle de requisições assíncronas   |
+| **Django REST API**| Backend com autenticação e dados      |
+| **PostgreSQL**     | Banco de dados com FK para categorias |
 
-## Configuração e Execução
+---
 
-### 1. Backend (Django)
+## 🧭 Navegação
 
-1.  **Navegue até o diretório do backend:**
-    ```bash
-    cd dashboard_project
-    ```
+| Rota                     | Acesso     | Descrição                          |
+|--------------------------|------------|-------------------------------------|
+| `/login`                 | Público    | Tela de autenticação                |
+| `/dashboard`             | Protegido  | Visualização e filtro dos dashboards |
+| `/admin`                 | Admin only | Cadastro de novos dashboards        |
+| `/change-password`       | Protegido  | Troca de senha                      |
 
-2.  **Instale as dependências do Python:**
-    ```bash
-    pip install -r requirements.txt
-    ```
-    (Você precisará criar um `requirements.txt` com as dependências: `Django`, `djangorestframework`, `djangorestframework-simplejwt`, `psycopg2-binary`)
+---
 
-3.  **Configure o banco de dados PostgreSQL:**
-    Certifique-se de que o PostgreSQL esteja rodando e crie um banco de dados e um usuário conforme configurado em `dashboard_project/settings.py`.
-    Exemplo de comandos (como usuário `postgres`):
-    ```bash
-    sudo -u postgres psql -c "CREATE DATABASE dashboard_db;"
-    sudo -u postgres psql -c "CREATE USER dashboard_user WITH PASSWORD 'password';"
-    sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE dashboard_db TO dashboard_user;"
-    ```
+## 🧪 Como testar localmente
 
-4.  **Aplique as migrações do banco de dados:**
-    ```bash
-    python manage.py makemigrations
-    python manage.py migrate
-    ```
+### 1. Clone o projeto
 
-5.  **Crie um superusuário (para acessar o painel de administração do Django):**
-    ```bash
-    python manage.py createsuperuser
-    ```
-    Siga as instruções para criar o usuário.
+```bash
+git clone https://github.com/seu-usuario/powerbi-sobral.git
+cd powerbi-sobral
+```
 
-6.  **Inicie o servidor backend:**
-    ```bash
-    python manage.py runserver 0.0.0.0:8000
-    ```
-    O servidor estará disponível em `http://localhost:8000` (ou no endereço exposto pelo Manus).
+### 2. Instale as dependências
 
-### 2. Frontend (React)
+```bash
+npm install
+```
 
-1.  **Navegue até o diretório do frontend:**
-    ```bash
-    cd frontend
-    ```
+### 3. Inicie o frontend
 
-2.  **Instale as dependências do Node.js:**
-    ```bash
-    pnpm install
-    ```
+```bash
+npm run dev
+```
 
-3.  **Inicie o servidor de desenvolvimento do frontend:**
-    ```bash
-    pnpm run dev --host
-    ```
-    O frontend estará disponível em `http://localhost:5173` (ou no endereço exposto pelo Manus).
+> ⚠️ Certifique-se de que o backend Django está rodando em paralelo.
 
-## Funcionalidades Implementadas
+---
 
-- **Autenticação JWT**: Login e logout com tokens de acesso e refresh.
-- **Controle de Acesso**: Dashboards visíveis de acordo com o nível de permissão do usuário (ADMIN, GESTOR, USUARIO).
-- **Gerenciamento de Usuários e Dashboards**: CRUD completo para administradores.
-- **Visualização de Dashboards**: Exibição de dashboards Power BI via iframe.
-- **Segurança Frontend (JavaScript)**:
-    - Desabilita clique direito.
-    - Bloqueia teclas como PrintScreen, Ctrl+P, Ctrl+S, Ctrl+U.
-    - Marca d'água dinâmica com nome do usuário e horário.
-    - Tentativa de bloqueio parcial de DevTools.
+## 📦 Requisitos do backend
 
-## Próximos Passos (Melhorias Futuras)
+- Python 3.10+
+- Django REST Framework
+- PostgreSQL
+- Endpoints:
+  - `GET /api/dashboards/`
+  - `GET /api/categories/`
+  - `POST /api/dashboard/`
+  - Autenticação via JWT
 
-- Integração com Power BI Embedded e Azure AD.
-- Logs detalhados de acesso e auditoria.
-- Dashboard personalizado por usuário com RLS (Row-Level Security).
-- Notificações de acesso e tentativas bloqueadas.
-- Tema escuro/claro para acessibilidade.
+---
 
+## ✅ Status do projeto
 
+🟢 **Funcional e pronto para uso interno**
 
+---
+
+## 📌 Próximos passos sugeridos
+
+- 🔒 Validação de permissões no backend
+- ✏️ Edição e exclusão de dashboards
+- ✅ Toast de confirmação (cadastro ou erro)
+- 📱 Testes completos em mobile
+- 🚫 Página de erro 404 / acesso negado
+- 🔐 Botão de logout e expiração automática de sessão
+
+---
+
+## 👨‍💼 Responsável técnico
+
+**Empresa:** Laboratório Sobral 
+**Desenvolvedor:** [Hian Claudio]
+**Desenvolvedor:** [Daniel Barbosa]     
+**Contato:** [hian.claudio@laboratoriosobral.com.br]
+**Contato:** [daniel.barbosa@laboratoriosobral.com.br]

@@ -167,7 +167,7 @@ export const DashboardGrid = () => {
           {dashboardsGrouped.map((group) =>
             group.dashboards.length > 0 ? (
               <AccordionItem key={group.id} value={group.name}>
-                <AccordionTrigger className="text-lg font-medium">
+                <AccordionTrigger className="text-lg font-bold text-gradient-orange ">
                   {group.name}
                 </AccordionTrigger>
                 <AccordionContent>
