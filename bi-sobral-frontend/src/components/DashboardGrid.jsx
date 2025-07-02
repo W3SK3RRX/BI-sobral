@@ -32,11 +32,9 @@ export const DashboardGrid = () => {
       dashboard.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
       dashboard.descricao?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const selectedCategoryName = categories.find(cat => String(cat.id) === selectedCategory)?.name || '';
-
     const matchesCategory =
       selectedCategory === 'all' ||
-      dashboard.categoria === selectedCategoryName;
+      String(dashboard.categoria) === selectedCategory;
 
     const matchesLevel =
       selectedLevel === 'all' ||

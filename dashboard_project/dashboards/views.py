@@ -101,6 +101,9 @@ class DashboardViewSet(viewsets.ModelViewSet):
             Q(usuarios_permitidos=user)
         ).distinct()
 
+    def perform_create(self, serializer):
+        serializer.save(criado_por=self.request.user)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

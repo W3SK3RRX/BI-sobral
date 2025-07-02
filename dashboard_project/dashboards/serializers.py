@@ -30,7 +30,12 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class DashboardSerializer(serializers.ModelSerializer):
-    categoria = serializers.CharField(source='categoria.name', read_only=True)
+    categoria = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all(),
+        required=False,
+        allow_null=True
+    )
+
     usuarios_permitidos = serializers.PrimaryKeyRelatedField(
         many=True, queryset=User.objects.all(), required=False
     )
