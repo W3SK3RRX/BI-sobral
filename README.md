@@ -100,8 +100,12 @@ npm run dev
 
 ## 👨‍💼 Responsável técnico
 
-**Empresa:** Laboratório Sobral 
+**Empresa:** Laboratório Sobral
+
 **Desenvolvedor:** [Hian Claudio]
-**Desenvolvedor:** [Daniel Barbosa]     
+
+**Desenvolvedor:** [Daniel Barbosa]   
+
 **Contato:** [hian.claudio@laboratoriosobral.com.br]
+
 **Contato:** [daniel.barbosa@laboratoriosobral.com.br]
