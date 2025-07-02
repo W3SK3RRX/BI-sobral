@@ -87,17 +87,6 @@ npm run dev
 
 ---
 
-## 📌 Próximos passos sugeridos
-
-- 🔒 Validação de permissões no backend
-- ✏️ Edição e exclusão de dashboards
-- ✅ Toast de confirmação (cadastro ou erro)
-- 📱 Testes completos em mobile
-- 🚫 Página de erro 404 / acesso negado
-- 🔐 Botão de logout e expiração automática de sessão
-
----
-
 ## 👨‍💼 Responsável técnico
 
 **Empresa:** Laboratório Sobral
