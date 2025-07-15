@@ -1,5 +1,16 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@media print {
+  body > *:not(.print-allowed) {
+    display: none !important;
+  }
+  .print-allowed {
+    display: block !important;
+  }
+  .watermark {
+    display: none !important; /* Hide watermark when printing */
+  }
+}
 
 @custom-variant dark (&:is(.dark *));
 

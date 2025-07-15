@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { X, Maximize2, Minimize2 } from 'lucide-react';
+import { X, Maximize2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/hooks/useAuth';
 
 export const FullscreenModal = ({ isOpen, onClose, dashboardUrl, dashboardName }) => {
   const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
     if (isOpen) {
@@ -35,7 +37,7 @@ export const FullscreenModal = ({ isOpen, onClose, dashboardUrl, dashboardName }
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
-        className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm"
+        className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm print:hidden"
         onClick={onClose}
       >
         <motion.div
@@ -43,7 +45,7 @@ export const FullscreenModal = ({ isOpen, onClose, dashboardUrl, dashboardName }
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="fixed inset-4 bg-white rounded-lg shadow-2xl overflow-hidden"
+          className="fixed inset-4 bg-white rounded-lg shadow-2xl overflow-hidden flex flex-col print:hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
@@ -66,10 +68,33 @@ export const FullscreenModal = ({ isOpen, onClose, dashboardUrl, dashboardName }
             </Button>
           </div>
 
-          {/* Content */}
+          {/* Conteúdo */}
           <div className="relative flex-1 h-[calc(100%-4rem)]">
+            {/* Marca d'água repetida sem linhas */}
+            {user && (
+              <div
+                className="absolute inset-0 pointer-events-none z-40"
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  justifyContent: 'center',
+                  alignContent: 'center',
+                  opacity: 0.06,
+                  fontSize: '2.5rem',
+                  //fontWeight: 'bold',
+                  color: 'black',
+                  transform: 'rotate(-30deg)',
+                  lineHeight: '3rem',
+                }}
+              >
+                {Array(100).fill(user.username || user.name).map((text, idx) => (
+                  <span key={idx} style={{ margin: '20px' }}>{text}</span>
+                ))}
+              </div>
+            )}
+
             {isLoading && (
-              <div className="absolute inset-0 flex items-center justify-center bg-gradient-orange-light">
+              <div className="absolute inset-0 flex items-center justify-center bg-gradient-orange-light z-50">
                 <div className="text-center">
                   <motion.div
                     animate={{ rotate: 360 }}
@@ -80,7 +105,8 @@ export const FullscreenModal = ({ isOpen, onClose, dashboardUrl, dashboardName }
                 </div>
               </div>
             )}
-            
+
+            {/* Iframe */}
             <iframe
               src={dashboardUrl}
               className="w-full h-full border-0"
@@ -96,4 +122,3 @@ export const FullscreenModal = ({ isOpen, onClose, dashboardUrl, dashboardName }
     </AnimatePresence>
   );
 };
-

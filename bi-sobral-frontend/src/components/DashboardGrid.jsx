@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { dashboardAPI } from '@/lib/api';
 import { Input } from '@/components/ui/input';
+import { useAuth } from '@/hooks/useAuth'; // <-- Adicione isso
 import {
   Select,
   SelectContent,
@@ -68,6 +69,8 @@ export const DashboardGrid = () => {
       return String(dashboardCategoryId) === String(category.id);
     }),
   }));
+
+  const { user } = useAuth(); // <-- Adicione isso
 
   return (
     <div className="space-y-6">
@@ -213,6 +216,7 @@ export const DashboardGrid = () => {
           dashboardName={modalData.nome}
         />
       )}
+      
     </div>
   );
 };
