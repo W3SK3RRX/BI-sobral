@@ -8,7 +8,13 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'chave-secreta-segura')
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['powerbi.laboratoriosobral.com.br', 'localhost']
+ALLOWED_HOSTS = [
+    'powerbi.laboratoriosobral.com.br',
+    'localhost',
+    '127.0.0.1',
+    '0.0.0.0'
+]
+
 
 CSRF_TRUSTED_ORIGINS = ['https://powerbi.laboratoriosobral.com.br']
 
