@@ -18,8 +18,8 @@ build/
 __pycache__/
 *.py[cod]
 *.sqlite3
-*.env
-env/
+#*.env
+#env/
 venv/
 *.egg-info/
 
@@ -38,9 +38,9 @@ db.sqlite3
 .vscode/
 
 # Arquivos de ambiente e configs sensíveis
-.env
-.env.local
-.env.*.local
+#
+#.env.local
+#.env.*.local
 
 # Produção
 *.log
