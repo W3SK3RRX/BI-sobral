@@ -72,19 +72,12 @@ export const authAPI = {
     const { access, refresh } = response.data;
 
     // Salvar tokens com segurança
-    Cookies.set('access_token', access, {
-      expires: 1,
-      secure: true,
-      sameSite: 'Strict',
-    });
-    Cookies.set('refresh_token', refresh, {
-      expires: 7,
-      secure: true,
-      sameSite: 'Strict',
-    });
+    Cookies.set('access_token', access, { expires: 1, secure: true, sameSite: 'Strict' });
+    Cookies.set('refresh_token', refresh, { expires: 7, secure: true, sameSite: 'Strict' });
 
     return response.data;
   },
+
 
   getMe: async () => {
     const response = await api.get('/me/');
