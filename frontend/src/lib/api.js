@@ -63,8 +63,16 @@ export const authAPI = {
       username: email,
       password,
     });
+
+    const { access, refresh } = response.data;
+
+    // Salvar tokens em cookies com segurança
+    Cookies.set('access_token', access, { expires: 1, secure: true, sameSite: 'Strict' });
+    Cookies.set('refresh_token', refresh, { expires: 7, secure: true, sameSite: 'Strict' });
+
     return response.data;
   },
+
 
   getMe: async () => {
     const response = await api.get('/me/');
