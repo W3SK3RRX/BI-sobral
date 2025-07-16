@@ -11,7 +11,7 @@ export const api = axios.create({
   },
 });
 
-// Interceptor para adicionar token em todas as requisições
+// ✅ Interceptor para adicionar Authorization
 api.interceptors.request.use((config) => {
   const token = Cookies.get('access_token');
   if (token) {
@@ -20,23 +20,19 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-
-// Interceptor para refresh automático do token
+// ✅ Refresh automático
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       const refreshToken = Cookies.get('refresh_token');
-
       if (refreshToken) {
         try {
           const response = await axios.post(`${API_BASE_URL}/token/refresh/`, {
             refresh: refreshToken,
           });
-
           const { access } = response.data;
           Cookies.set('access_token', access, {
             expires: 1,
@@ -50,16 +46,13 @@ api.interceptors.response.use(
           Cookies.remove('refresh_token');
           window.location.href = '/login';
         }
-      } else {
-        window.location.href = '/login';
       }
     }
-
     return Promise.reject(error);
   }
 );
 
-// Autenticação
+// ✅ Autenticação
 export const authAPI = {
   login: async (email, password) => {
     const response = await api.post('/token/', {
@@ -69,9 +62,17 @@ export const authAPI = {
 
     const { access, refresh } = response.data;
 
-    // Salvar tokens em cookies seguros
-    Cookies.set('access_token', access, { expires: 1, secure: true, sameSite: 'Strict' });
-    Cookies.set('refresh_token', refresh, { expires: 7, secure: true, sameSite: 'Strict' });
+    // ✅ Salvar tokens
+    Cookies.set('access_token', access, {
+      expires: 1,
+      secure: true,
+      sameSite: 'Strict',
+    });
+    Cookies.set('refresh_token', refresh, {
+      expires: 7,
+      secure: true,
+      sameSite: 'Strict',
+    });
 
     return response.data;
   },
@@ -93,67 +94,6 @@ export const authAPI = {
   logout: () => {
     Cookies.remove('access_token');
     Cookies.remove('refresh_token');
-  },
-};
-
-// Dashboards e Categorias
-export const dashboardAPI = {
-  getDashboards: async () => {
-    const response = await api.get('/dashboards/');
-    return response.data;
-  },
-
-  getDashboardById: async (id) => {
-    const response = await api.get(`/dashboards/${id}/`);
-    return response.data;
-  },
-
-  updateDashboard: async (id, data) => {
-    const response = await api.put(`/dashboards/${id}/`, data);
-    return response.data;
-  },
-
-  getCategories: async () => {
-    const response = await api.get('/categories/');
-    return response.data;
-  },
-
-  createDashboard: async (data) => {
-    const response = await api.post('/dashboards/', data);
-    return response.data;
-  },
-
-  deleteDashboard: async (id) => {
-    const response = await api.delete(`/dashboards/${id}/`);
-    return response.data;
-  },
-};
-
-// Admin: gerenciamento de usuários
-export const userAPI = {
-  getUsers: async () => {
-    const response = await api.get('/users/');
-    return response.data;
-  },
-
-  getUser: async (id) => {
-    const response = await api.get(`/users/${id}/`);
-    return response.data;
-  },
-
-  createUser: async (data) => {
-    const response = await api.post('/users/', data);
-    return response.data;
-  },
-
-  updateUser: async (id, data) => {
-    const response = await api.patch(`/users/${id}/`, data);
-    return response.data;
-  },
-
-  deleteUser: async (id) => {
-    const response = await api.delete(`/users/${id}/`);
-    return response.data;
   },
 };
 
