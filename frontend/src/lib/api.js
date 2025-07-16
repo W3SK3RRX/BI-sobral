@@ -1,7 +1,8 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://powerbi.laboratoriosobral.com.br/api';
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || 'https://powerbi.laboratoriosobral.com.br/api';
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -10,7 +11,7 @@ export const api = axios.create({
   },
 });
 
-// Interceptor para adicionar token
+// Interceptor para adicionar token em todas as requisições
 api.interceptors.request.use(
   (config) => {
     const token = Cookies.get('access_token');
@@ -22,7 +23,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Interceptor para refresh automático
+// Interceptor para refresh automático do token
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -39,7 +40,11 @@ api.interceptors.response.use(
           });
 
           const { access } = response.data;
-          Cookies.set('access_token', access, { expires: 1 });
+          Cookies.set('access_token', access, {
+            expires: 1,
+            secure: true,
+            sameSite: 'Strict',
+          });
           originalRequest.headers.Authorization = `Bearer ${access}`;
           return api(originalRequest);
         } catch (err) {
@@ -66,13 +71,20 @@ export const authAPI = {
 
     const { access, refresh } = response.data;
 
-    // Salvar tokens em cookies com segurança
-    Cookies.set('access_token', access, { expires: 1, secure: true, sameSite: 'Strict' });
-    Cookies.set('refresh_token', refresh, { expires: 7, secure: true, sameSite: 'Strict' });
+    // Salvar tokens com segurança
+    Cookies.set('access_token', access, {
+      expires: 1,
+      secure: true,
+      sameSite: 'Strict',
+    });
+    Cookies.set('refresh_token', refresh, {
+      expires: 7,
+      secure: true,
+      sameSite: 'Strict',
+    });
 
     return response.data;
   },
-
 
   getMe: async () => {
     const response = await api.get('/me/');
@@ -127,7 +139,6 @@ export const dashboardAPI = {
   },
 };
 
-
 // Admin: gerenciamento de usuários
 export const userAPI = {
   getUsers: async () => {
@@ -155,6 +166,5 @@ export const userAPI = {
     return response.data;
   },
 };
-
 
 export default api;
