@@ -12,16 +12,14 @@ export const api = axios.create({
 });
 
 // Interceptor para adicionar token em todas as requisições
-api.interceptors.request.use(
-  (config) => {
-    const token = Cookies.get('access_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+api.interceptors.request.use((config) => {
+  const token = Cookies.get('access_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 
 // Interceptor para refresh automático do token
 api.interceptors.response.use(
@@ -71,13 +69,12 @@ export const authAPI = {
 
     const { access, refresh } = response.data;
 
-    // Salvar tokens com segurança
+    // Salvar tokens em cookies seguros
     Cookies.set('access_token', access, { expires: 1, secure: true, sameSite: 'Strict' });
     Cookies.set('refresh_token', refresh, { expires: 7, secure: true, sameSite: 'Strict' });
 
     return response.data;
   },
-
 
   getMe: async () => {
     const response = await api.get('/me/');
