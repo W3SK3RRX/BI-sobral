@@ -15,11 +15,10 @@ services:
       context: .
       dockerfile: ./frontend/Dockerfile
     container_name: frontend
-    restart: always
-    ports:
-      - "8080:80"  # Alterado para não conflitar com Nginx do host
+    restart: "no"
     volumes:
-      - /var/www/powerbi/dist:/usr/share/nginx/html  # 🔥 Esse é o volume que vai sincronizar
+      - /var/www/powerbi:/deploy  # Copia final vai para /deploy no host
+    command: sh -c "npm install && npm run build && cp -r /app/dist/* /deploy/"
 
   db:
     image: postgres:15
