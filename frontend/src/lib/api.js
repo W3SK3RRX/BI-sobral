@@ -77,8 +77,11 @@ export const authAPI = {
     return response.data;
   },
 
+  
+
   getMe: async () => {
     const response = await api.get('/me/');
+    console.log('Access Token no Cookie:', Cookies.get('access_token'));
     return response.data;
   },
 
