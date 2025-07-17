@@ -1,34 +1,33 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL || 'https://powerbi.laboratoriosobral.com.br/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
 
-// ✅ Configuração do Axios
 export const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000, // 10s de timeout para evitar requests travadas
 });
 
-// ✅ Interceptor para anexar Authorization com token JWT
-api.interceptors.request.use((config) => {
-  const token = Cookies.get('access_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+// Interceptor para adicionar token
+api.interceptors.request.use(
+  (config) => {
+    const token = Cookies.get('access_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
-// ✅ Interceptor para refresh automático do token
+// Interceptor para refresh automático
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // Se o token expirou (401) e ainda não tentamos renovar
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       const refreshToken = Cookies.get('refresh_token');
@@ -40,67 +39,38 @@ api.interceptors.response.use(
           });
 
           const { access } = response.data;
-
-          // ✅ Atualiza token no cookie
-          Cookies.set('access_token', access, {
-            expires: 1, // 1 dia
-            secure: true,
-            sameSite: 'Strict',
-            path: '/',
-          });
-
-          // ✅ Reenvia a requisição original com novo token
+          Cookies.set('access_token', access, { expires: 1 });
           originalRequest.headers.Authorization = `Bearer ${access}`;
           return api(originalRequest);
         } catch (err) {
-          // Refresh falhou → remove tokens e redireciona para login
           Cookies.remove('access_token');
           Cookies.remove('refresh_token');
-          alert('Sua sessão expirou. Faça login novamente.');
           window.location.href = '/login';
         }
+      } else {
+        window.location.href = '/login';
       }
     }
+
     return Promise.reject(error);
   }
 );
 
-// ✅ API de autenticação
+// Autenticação
 export const authAPI = {
-  // Login
   login: async (email, password) => {
     const response = await api.post('/token/', {
       username: email,
       password,
     });
-
-    const { access, refresh } = response.data;
-
-    // ✅ Salvar tokens com segurança
-    Cookies.set('access_token', access, {
-      expires: 1, // 1 dia
-      secure: true,
-      sameSite: 'Strict',
-      path: '/', // importante para todas as rotas
-    });
-
-    Cookies.set('refresh_token', refresh, {
-      expires: 7, // 7 dias
-      secure: true,
-      sameSite: 'Strict',
-      path: '/',
-    });
-
     return response.data;
   },
 
-  // Obter dados do usuário autenticado
   getMe: async () => {
     const response = await api.get('/me/');
     return response.data;
   },
 
-  // Alterar senha
   changePassword: async (oldPassword, newPassword) => {
     const response = await api.post('/trocar-senha/', {
       senha_atual: oldPassword,
@@ -110,11 +80,73 @@ export const authAPI = {
     return response.data;
   },
 
-  // Logout
   logout: () => {
     Cookies.remove('access_token');
     Cookies.remove('refresh_token');
   },
 };
+
+// Dashboards e Categorias
+export const dashboardAPI = {
+  getDashboards: async () => {
+    const response = await api.get('/dashboards/');
+    return response.data;
+  },
+
+  getDashboardById: async (id) => {
+    const response = await api.get(`/dashboards/${id}/`);
+    return response.data;
+  },
+
+  updateDashboard: async (id, data) => {
+    const response = await api.put(`/dashboards/${id}/`, data);
+    return response.data;
+  },
+
+  getCategories: async () => {
+    const response = await api.get('/categories/');
+    return response.data;
+  },
+
+  createDashboard: async (data) => {
+    const response = await api.post('/dashboards/', data);
+    return response.data;
+  },
+
+  deleteDashboard: async (id) => {
+    const response = await api.delete(`/dashboards/${id}/`);
+    return response.data;
+  },
+};
+
+
+// Admin: gerenciamento de usuários
+export const userAPI = {
+  getUsers: async () => {
+    const response = await api.get('/users/');
+    return response.data;
+  },
+
+  getUser: async (id) => {
+    const response = await api.get(`/users/${id}/`);
+    return response.data;
+  },
+
+  createUser: async (data) => {
+    const response = await api.post('/users/', data);
+    return response.data;
+  },
+
+  updateUser: async (id, data) => {
+    const response = await api.patch(`/users/${id}/`, data);
+    return response.data;
+  },
+
+  deleteUser: async (id) => {
+    const response = await api.delete(`/users/${id}/`);
+    return response.data;
+  },
+};
+
 
 export default api;
