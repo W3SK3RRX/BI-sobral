@@ -11,13 +11,13 @@ services:
       - db
 
   frontend:
-    build:
-      context: .
-      dockerfile: ./frontend/Dockerfile
-    container_name: frontend
-    restart: always
-    ports:
-      - "127.0.0.1:3000:80" # Somente acessível no host (proxy)
+  build:
+    context: .
+    dockerfile: ./frontend/Dockerfile
+  volumes:
+    - /var/www/powerbi/dist:/usr/share/nginx/html
+  ports:
+    - "8080:80"
 
   db:
     image: postgres:15
