@@ -17,8 +17,9 @@ services:
     container_name: frontend
     restart: "no"
     volumes:
-      - /var/www/powerbi:/deploy  # Copia final vai para /deploy no host
-    command: sh -c "npm install && npm run build && cp -r /app/dist/* /deploy/"
+      - /var/www/powerbi:/deploy
+    command: sh -c "npm install --legacy-peer-deps && npm run build && cp -r /app/dist/* /deploy/"
+
 
   db:
     image: postgres:15
