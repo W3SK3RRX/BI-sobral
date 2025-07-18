@@ -10,7 +10,7 @@ export const api = axios.create({
   },
 });
 
-// Interceptor para adicionar token
+// Interceptor para adicionar token automaticamente
 api.interceptors.request.use(
   (config) => {
     const token = Cookies.get('access_token');
@@ -22,7 +22,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Interceptor para refresh automático
+// Interceptor para refresh automático de token
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -34,7 +34,7 @@ api.interceptors.response.use(
 
       if (refreshToken) {
         try {
-          const response = await axios.post(`${API_BASE_URL}/token/refresh/`, {
+          const response = await api.post('/token/refresh/', {
             refresh: refreshToken,
           });
 
@@ -56,7 +56,7 @@ api.interceptors.response.use(
   }
 );
 
-// Autenticação
+// Endpoints de autenticação
 export const authAPI = {
   login: async (email, password) => {
     const response = await api.post('/token/', {
@@ -119,7 +119,6 @@ export const dashboardAPI = {
   },
 };
 
-
 // Admin: gerenciamento de usuários
 export const userAPI = {
   getUsers: async () => {
@@ -147,6 +146,5 @@ export const userAPI = {
     return response.data;
   },
 };
-
 
 export default api;
