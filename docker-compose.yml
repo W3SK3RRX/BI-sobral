@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   backend:
     build: ./backend
@@ -19,8 +20,11 @@ services:
     build: ./frontend
     container_name: bi_frontend
     restart: always
-    expose:
-      - "80"
+    volumes:
+      - frontend_build:/usr/share/nginx/html
+    command: sh -c "npm install && npm run build && cp -r dist/* /usr/share/nginx/html"
+    depends_on:
+      - backend
 
   nginx:
     image: nginx:stable-alpine
@@ -43,10 +47,12 @@ services:
     image: postgres:15
     container_name: bi_db
     restart: always
+    env_file:
+      - .env
     environment:
-      POSTGRES_DB: sobral
-      POSTGRES_USER: sobral_user
-      POSTGRES_PASSWORD: senha_forte
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - db_data:/var/lib/postgresql/data
 
