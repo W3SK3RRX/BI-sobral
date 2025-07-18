@@ -4,7 +4,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --legacy-peer-deps
 
-# Copiar .env para dentro do container
+# COPIAR .env ANTES DO BUILD
 COPY .env.production .env
 
 COPY . .
