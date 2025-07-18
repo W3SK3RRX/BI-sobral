@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://powerbi.laboratoriosobral.com.br/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
