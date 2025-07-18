@@ -16,7 +16,11 @@ ALLOWED_HOSTS = [
 ]
 
 
-CSRF_TRUSTED_ORIGINS = ['https://powerbi.laboratoriosobral.com.br']
+CSRF_TRUSTED_ORIGINS = [
+    'https://powerbi.laboratoriosobral.com.br',
+    'https://apibi.laboratoriosobral.com.br'
+]
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -42,7 +46,16 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    "https://powerbi.laboratoriosobral.com.br",  # Frontend
+    "https://apibi.laboratoriosobral.com.br"     # Backend
+]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
 
 ROOT_URLCONF = 'dashboard_project.urls'
 
