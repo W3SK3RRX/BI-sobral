@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const API_BASE_URL = 'https://apibi.laboratoriosobral.com.br/api';
+const API_BASE_URL = 'https://apibi.laboratoriosobral.com.br/api/';
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -59,7 +59,7 @@ api.interceptors.response.use(
 // Autenticação
 export const authAPI = {
   login: async (email, password) => {
-    const response = await api.post('/token/', {
+    const response = await api.post('token/', {
       username: email,
       password,
     });
@@ -67,12 +67,12 @@ export const authAPI = {
   },
 
   getMe: async () => {
-    const response = await api.get('/me/');
+    const response = await api.get('me/');
     return response.data;
   },
 
   changePassword: async (oldPassword, newPassword) => {
-    const response = await api.post('/trocar-senha/', {
+    const response = await api.post('trocar-senha/', {
       senha_atual: oldPassword,
       nova_senha: newPassword,
       confirmar_senha: newPassword,
@@ -89,32 +89,32 @@ export const authAPI = {
 // Dashboards e Categorias
 export const dashboardAPI = {
   getDashboards: async () => {
-    const response = await api.get('/dashboards/');
+    const response = await api.get('dashboards/');
     return response.data;
   },
 
   getDashboardById: async (id) => {
-    const response = await api.get(`/dashboards/${id}/`);
+    const response = await api.get(`dashboards/${id}/`);
     return response.data;
   },
 
   updateDashboard: async (id, data) => {
-    const response = await api.put(`/dashboards/${id}/`, data);
+    const response = await api.put(`dashboards/${id}/`, data);
     return response.data;
   },
 
   getCategories: async () => {
-    const response = await api.get('/categories/');
+    const response = await api.get('categories/');
     return response.data;
   },
 
   createDashboard: async (data) => {
-    const response = await api.post('/dashboards/', data);
+    const response = await api.post('dashboards/', data);
     return response.data;
   },
 
   deleteDashboard: async (id) => {
-    const response = await api.delete(`/dashboards/${id}/`);
+    const response = await api.delete(`dashboards/${id}/`);
     return response.data;
   },
 };
@@ -123,27 +123,27 @@ export const dashboardAPI = {
 // Admin: gerenciamento de usuários
 export const userAPI = {
   getUsers: async () => {
-    const response = await api.get('/users/');
+    const response = await api.get('users/');
     return response.data;
   },
 
   getUser: async (id) => {
-    const response = await api.get(`/users/${id}/`);
+    const response = await api.get(`users/${id}/`);
     return response.data;
   },
 
   createUser: async (data) => {
-    const response = await api.post('/users/', data);
+    const response = await api.post('users/', data);
     return response.data;
   },
 
   updateUser: async (id, data) => {
-    const response = await api.patch(`/users/${id}/`, data);
+    const response = await api.patch(`users/${id}/`, data);
     return response.data;
   },
 
   deleteUser: async (id) => {
-    const response = await api.delete(`/users/${id}/`);
+    const response = await api.delete(`users/${id}/`);
     return response.data;
   },
 };
