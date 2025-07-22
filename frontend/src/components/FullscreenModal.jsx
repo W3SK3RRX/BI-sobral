@@ -70,7 +70,7 @@ export const FullscreenModal = ({ isOpen, onClose, dashboardUrl, dashboardName }
 
           {/* Conteúdo */}
           <div className="relative flex-1 h-[calc(100%-4rem)]">
-            {/* Marca d'água repetida sem linhas */}
+            {/* Marca d'água repetida */}
             {user && (
               <div
                 className="absolute inset-0 pointer-events-none z-40"
@@ -81,7 +81,6 @@ export const FullscreenModal = ({ isOpen, onClose, dashboardUrl, dashboardName }
                   alignContent: 'center',
                   opacity: 0.06,
                   fontSize: '2.5rem',
-                  //fontWeight: 'bold',
                   color: 'black',
                   transform: 'rotate(-30deg)',
                   lineHeight: '3rem',
@@ -106,16 +105,44 @@ export const FullscreenModal = ({ isOpen, onClose, dashboardUrl, dashboardName }
               </div>
             )}
 
-            {/* Iframe */}
-            <iframe
-              src={dashboardUrl}
-              className="w-full h-full border-0"
-              title={dashboardName}
-              onLoad={handleIframeLoad}
-              onError={handleIframeError}
-              sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
-              referrerPolicy="strict-origin-when-cross-origin"
-            />
+            {/* Iframe + Overlay (hack visual para esconder menus) */}
+            <div className="relative w-full h-full">
+              <iframe
+                src={dashboardUrl}
+                className="w-full h-full border-0"
+                title={dashboardName}
+                onLoad={handleIframeLoad}
+                onError={handleIframeError}
+                sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+                referrerPolicy="strict-origin-when-cross-origin"
+              />
+              
+              {/* Overlay para esconder o rodapé */}
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '50px', // ajuste a altura conforme necessário
+                  backgroundColor: 'white',
+                  zIndex: 10,
+                }}
+              ></div>
+              
+              {/* Overlay opcional para esconder a barra superior */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '45px', // ajuste conforme necessário
+                  backgroundColor: 'white',
+                  zIndex: 10,
+                }}
+              ></div>
+            </div>
           </div>
         </motion.div>
       </motion.div>
