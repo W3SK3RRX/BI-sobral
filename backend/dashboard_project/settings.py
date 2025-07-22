@@ -43,9 +43,10 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'dashboards.middleware.check_active_token.ActiveSessionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'dashboards.middleware.check_active_token.ActiveSessionMiddleware',
+    
 ]
 
 CORS_ALLOWED_ORIGINS = [
