@@ -119,7 +119,7 @@ export const FullscreenModal = ({ isOpen, onClose, dashboardUrl, dashboardName }
 
               {/* Overlay para esconder botões de compartilhar (canto inferior direito) */}
               <div
-                className="absolute bottom-0 right-0 w-[200px] h-[38px] z-10 flex items-center justify-center"
+                className="absolute bottom-0 right-0 w-[200px] h-[37px] z-10 flex items-center justify-center"
                 style={{ backgroundColor: '#eaeaea' }}
               >
                 <span className="text-xl font-bold text-gradient-orange">
