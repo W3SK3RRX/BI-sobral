@@ -34,7 +34,7 @@ api.interceptors.response.use(
 
       if (refreshToken) {
         try {
-          const response = await axios.post(`${API_BASE_URL}/token/refresh/`, {
+          const response = await axios.post(`${API_BASE_URL}token/refresh/`, {
             refresh: refreshToken,
           });
 
@@ -60,7 +60,7 @@ api.interceptors.response.use(
 export const authAPI = {
   login: async (email, password) => {
     const response = await api.post('token/', {
-      username: email,
+      username: email, // OK, backend entende isso
       password,
     });
     return response.data;
