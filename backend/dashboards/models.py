@@ -17,8 +17,8 @@ class User(AbstractUser):
     senha_alterada_em = models.DateTimeField(auto_now_add=True)
     primeiro_acesso = models.BooleanField(default=True)
 
-    USERNAME_FIELD = 'email'  # ✅ Login por e-mail
-    REQUIRED_FIELDS = []  # ✅ Remove obrigatoriedade do username no createsuperuser
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']  # <-- torna username obrigatório
 
     def senha_expirada(self):
         if self.access_level == 'ADMIN':
