@@ -12,14 +12,11 @@ class User(AbstractUser):
         ('GESTOR', 'Gestor'),
         ('USUARIO', 'Usuário Comum'),
     )
-
     email = models.EmailField(unique=True)
     access_level = models.CharField(max_length=10, choices=USER_LEVELS, default='USUARIO')
     senha_alterada_em = models.DateTimeField(auto_now_add=True)
-    primeiro_acesso = models.BooleanField(default=True)
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']  # Agora username será usado apenas para exibição
+    primeiro_acesso = models.BooleanField(default=True)  # 👈 NOVO
 
     def senha_expirada(self):
         if self.access_level == 'ADMIN':
