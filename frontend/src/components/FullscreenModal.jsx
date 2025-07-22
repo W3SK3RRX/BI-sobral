@@ -71,26 +71,27 @@ export const FullscreenModal = ({ isOpen, onClose, dashboardUrl, dashboardName }
           {/* Conteúdo */}
           <div className="relative flex-1 h-[calc(100%-4rem)]">
             {/* Marca d'água repetida */}
-
+            {/* Marca d'água repetida preenchendo toda a tela */}
             {user && (
               <div
                 className="absolute inset-0 pointer-events-none z-40"
                 style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+                  gridAutoRows: '100px',
+                  justifyItems: 'center',
+                  alignItems: 'center',
                   opacity: 0.06,
+                  fontSize: '2.5rem',
+                  color: 'black',
                   transform: 'rotate(-30deg)',
-                  backgroundSize: '300px 150px',
-                  backgroundImage: `url("data:image/svg+xml;utf8,
-                    <svg xmlns='http://www.w3.org/2000/svg' width='300' height='150'>
-                      <text x='0' y='50%' font-size='32' fill='black' font-family='Arial' font-weight='bold' opacity='0.2'>
-                        ${encodeURIComponent(user.username || user.name)}
-                      </text>
-                    </svg>
-                  ")`,
-                  backgroundRepeat: 'repeat',
                 }}
-              />
+              >
+                {Array(200).fill(user.username || user.name).map((text, idx) => (
+                  <span key={idx}>{text}</span>
+                ))}
+              </div>
             )}
-
 
             {isLoading && (
               <div className="absolute inset-0 flex items-center justify-center bg-gradient-orange-light z-50">
