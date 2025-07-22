@@ -116,20 +116,20 @@ export const FullscreenModal = ({ isOpen, onClose, dashboardUrl, dashboardName }
                 sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
                 referrerPolicy="strict-origin-when-cross-origin"
               />
-              
-              {/* Overlay para esconder o rodapé */}
+
+              {/* Overlay para esconder botões de compartilhar (canto inferior esquerdo) */}
               <div
                 style={{
                   position: 'absolute',
                   bottom: 0,
                   left: 0,
-                  width: '100%',
-                  height: '50px', // ajuste a altura conforme necessário
+                  width: '200px', // ajuste conforme necessário para cobrir os botões
+                  height: '60px', // ajuste a altura conforme necessário
                   backgroundColor: 'white',
                   zIndex: 10,
                 }}
               ></div>
-              
+
               {/* Overlay opcional para esconder a barra superior */}
               <div
                 style={{
