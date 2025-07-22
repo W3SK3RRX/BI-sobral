@@ -124,21 +124,8 @@ export const FullscreenModal = ({ isOpen, onClose, dashboardUrl, dashboardName }
                   bottom: 0,
                   right: 0, // ajusta para o canto inferior direito
                   width: '200px', // ajuste conforme necessário para cobrir os botões
-                  height: '38px', // ajuste conforme necessário
-                  backgroundColor: 'white',
-                  zIndex: 10,
-                }}
-              ></div>
-
-              {/* Overlay opcional para esconder a barra superior */}
-              <div
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '45px', // ajuste conforme necessário
-                  backgroundColor: 'white',
+                  height: '36px', // ajuste conforme necessário
+                  backgroundColor: '#F5F5F5',
                   zIndex: 10,
                 }}
               ></div>
