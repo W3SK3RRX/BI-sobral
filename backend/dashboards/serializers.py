@@ -10,12 +10,23 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("id", "username", "email", "access_level", "password")
-        extra_kwargs = {"password": {"write_only": True}}
+        fields = (
+            "id",
+            "username",      
+            "last_name",     
+            "email",
+            "access_level",
+            "password"
+        )
+        extra_kwargs = {
+            "password": {"write_only": True}
+        }
 
     def create(self, validated_data):
-        if 'username' not in validated_data or not validated_data['username']:
-            validated_data['username'] = validated_data['email']  # ✅ username = email
+        # ✅ Se não vier username, usa a parte antes do @ do email
+        if not validated_data.get('username'):
+            validated_data['username'] = validated_data['email'].split('@')[0]
+
         user = User.objects.create_user(**validated_data)
         return user
     

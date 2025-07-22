@@ -6,6 +6,7 @@ import { userAPI } from '@/lib/api';
 
 const NovoUsuario = () => {
   const [username, setUsername] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [accessLevel, setAccessLevel] = useState('USUARIO');
@@ -14,8 +15,10 @@ const NovoUsuario = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const novoUsuario = {
-      username,
+      username,             // Primeiro nome
+      last_name: lastName,  // Sobrenome
       email,
       password,
       access_level: accessLevel,
@@ -23,10 +26,10 @@ const NovoUsuario = () => {
 
     try {
       await userAPI.createUser(novoUsuario);
-      navigate('/admin'); // ou para uma lista de usuários
+      navigate('/admin'); // Redireciona após criar
     } catch (err) {
       console.error('Erro ao criar usuário:', err);
-      alert('Erro ao criar usuário.');
+      alert('Erro ao criar usuário. Verifique os dados e tente novamente.');
     }
   };
 
@@ -40,12 +43,25 @@ const NovoUsuario = () => {
         className="container mx-auto px-4 py-8"
       >
         <h2 className="text-2xl font-bold mb-6">+ Novo Usuário</h2>
-        <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md space-y-4 max-w-xl mx-auto">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white p-6 rounded shadow-md space-y-4 max-w-xl mx-auto"
+        >
           <div>
-            <label className="block font-semibold mb-1">Nome de usuário:</label>
+            <label className="block font-semibold mb-1">Primeiro Nome:</label>
             <input
               value={username}
-              onChange={e => setUsername(e.target.value)}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              className="w-full border p-2 rounded"
+            />
+          </div>
+
+          <div>
+            <label className="block font-semibold mb-1">Sobrenome:</label>
+            <input
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
               required
               className="w-full border p-2 rounded"
             />
@@ -56,7 +72,7 @@ const NovoUsuario = () => {
             <input
               type="email"
               value={email}
-              onChange={e => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
               required
               className="w-full border p-2 rounded"
             />
@@ -67,7 +83,7 @@ const NovoUsuario = () => {
             <input
               type="password"
               value={password}
-              onChange={e => setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
               required
               className="w-full border p-2 rounded"
             />
@@ -77,7 +93,7 @@ const NovoUsuario = () => {
             <label className="block font-semibold mb-1">Nível de acesso:</label>
             <select
               value={accessLevel}
-              onChange={e => setAccessLevel(e.target.value)}
+              onChange={(e) => setAccessLevel(e.target.value)}
               className="w-full border p-2 rounded"
             >
               <option value="ADMIN">Administrador</option>
