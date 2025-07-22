@@ -119,16 +119,13 @@ export const FullscreenModal = ({ isOpen, onClose, dashboardUrl, dashboardName }
 
               {/* Overlay para esconder botões de compartilhar (canto inferior direito) */}
               <div
-                style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  right: 0, // ajusta para o canto inferior direito
-                  width: '200px', // ajuste conforme necessário para cobrir os botões
-                  height: '36px', // ajuste conforme necessário
-                  backgroundColor: '#F5F5F5',
-                  zIndex: 10,
-                }}
-              ></div>
+                className="absolute bottom-0 right-0 w-[200px] h-[32px] bg-white z-10 flex items-center justify-center"
+              >
+                <span className="text-xl font-bold text-gradient-orange">
+                  PowerBI - Sobral
+                </span>
+              </div>
+
             </div>
           </div>
         </motion.div>
