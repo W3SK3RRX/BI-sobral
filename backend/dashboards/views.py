@@ -1,24 +1,27 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import InvalidToken
 from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth import get_user_model
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from .models import User, Category, Dashboard
+from .models import User, Category, Dashboard, ActiveSession
 from .serializers import UserSerializer, CategorySerializer, DashboardSerializer
 from .serializers import TrocarSenhaSerializer
 from django.db.models import Q
 from django.utils import timezone
 from dashboards.permissions import ReadOnlyOrAdmin
 
+
 # 🔐 View personalizada para login via e-mail
 UserModel = get_user_model()
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
-        email = attrs.get("username")  # frontend envia "username", mas é o e-mail
+        email = attrs.get("username")
         password = attrs.get("password")
 
         try:
@@ -29,31 +32,41 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         if not user.check_password(password):
             raise AuthenticationFailed("Senha incorreta.")
 
-        # 🔐 Verifica se a senha expirou
         if user.senha_expirada():
             raise AuthenticationFailed("Sua senha expirou. Por favor, altere sua senha para continuar.")
 
-        # Gera token
-        data = super().get_token(user)
+        # ✅ Gera novos tokens JWT
+        refresh = RefreshToken.for_user(user)
+        access = str(refresh.access_token)
+
+        # ✅ Remove sessão anterior (se existir)
+        ActiveSession.objects.filter(user=user).delete()
+
+        # ✅ Cria nova sessão
+        ActiveSession.objects.create(user=user, refresh_token=str(refresh))
+
         return {
-            "access": str(data.access_token),
-            "refresh": str(data),
+            'refresh': str(refresh),
+            'access': access,
         }
+
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
 
-#@api_view(['GET'])
-#@permission_classes([IsAuthenticated])
-#def me_view(request):
-#    user = request.user
-#    return Response({
-#        "id": user.id,
-#        "username": user.username,
-#        "email": user.email,
-#        "access_level": user.access_level,
-#    })
+# ✅ Refresh personalizado para validar se o refresh token ainda é válido
+class MyTokenRefreshView(TokenRefreshView):
+    def post(self, request, *args, **kwargs):
+        refresh_token = request.data.get('refresh')
+
+        if not ActiveSession.objects.filter(refresh_token=refresh_token).exists():
+            raise InvalidToken("Este token não é mais válido. Faça login novamente.")
+
+        return super().post(request, *args, **kwargs)
+
+
+
 
 
 @api_view(['GET'])

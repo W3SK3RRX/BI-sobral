@@ -2,6 +2,9 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
 from datetime import timedelta
+from django.db import models
+from django.conf import settings
+
 
 class User(AbstractUser):
     USER_LEVELS = (
@@ -19,6 +22,15 @@ class User(AbstractUser):
         if self.access_level == 'ADMIN':
             return False
         return timezone.now() > self.senha_alterada_em + timedelta(days=30)
+    
+
+class ActiveSession(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='active_session')
+    refresh_token = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Active session for {self.user.email}"
 
 
 class Category(models.Model):
