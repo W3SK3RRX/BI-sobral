@@ -21,8 +21,11 @@ UserModel = get_user_model()
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
-        email = attrs.get("username")
+        email = attrs.get("email")  # <-- agora pega 'email'
         password = attrs.get("password")
+
+        if not email or not password:
+            raise AuthenticationFailed("E-mail e senha são obrigatórios.")
 
         try:
             user = UserModel.objects.get(email=email)
@@ -35,20 +38,12 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         if user.senha_expirada():
             raise AuthenticationFailed("Sua senha expirou. Por favor, altere sua senha para continuar.")
 
-        # ✅ Gera novos tokens JWT
         refresh = RefreshToken.for_user(user)
-        access = str(refresh.access_token)
-
-        # ✅ Remove sessão anterior (se existir)
         ActiveSession.objects.filter(user=user).delete()
-
-        # ✅ Cria nova sessão
         ActiveSession.objects.create(user=user, refresh_token=str(refresh))
 
-        return {
-            'refresh': str(refresh),
-            'access': access,
-        }
+        return {"refresh": str(refresh), "access": str(refresh.access_token)}
+
 
 
 class MyTokenObtainPairView(TokenObtainPairView):

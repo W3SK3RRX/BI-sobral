@@ -60,7 +60,7 @@ api.interceptors.response.use(
 export const authAPI = {
   login: async (email, password) => {
     const response = await api.post('token/', {
-      username: email, // OK, backend entende isso
+      email: email, // OK, backend entende isso
       password,
     });
     return response.data;
