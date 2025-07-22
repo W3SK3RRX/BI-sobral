@@ -71,26 +71,24 @@ export const FullscreenModal = ({ isOpen, onClose, dashboardUrl, dashboardName }
           {/* Conteúdo */}
           <div className="relative flex-1 h-[calc(100%-4rem)]">
             {/* Marca d'água repetida */}
-            {/* Marca d'água repetida preenchendo toda a tela */}
+
             {user && (
               <div
                 className="absolute inset-0 pointer-events-none z-40"
                 style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-                  gridAutoRows: '100px',
-                  justifyItems: 'center',
-                  alignItems: 'center',
                   opacity: 0.06,
-                  fontSize: '2.5rem',
-                  color: 'black',
                   transform: 'rotate(-30deg)',
+                  backgroundImage: `url("data:image/svg+xml;utf8,${encodeURIComponent(`
+                    <svg xmlns='http://www.w3.org/2000/svg' width='300' height='150'>
+                      <text x='0' y='50%' font-size='32' font-family='Arial' font-weight='bold' fill='black' opacity='0.2'>
+                        ${user.username || user.name}
+                      </text>
+                    </svg>
+                  `)}")`,
+                  backgroundRepeat: 'repeat',
+                  backgroundSize: '300px 150px',
                 }}
-              >
-                {Array(200).fill(user.username || user.name).map((text, idx) => (
-                  <span key={idx}>{text}</span>
-                ))}
-              </div>
+              />
             )}
 
             {isLoading && (
@@ -120,7 +118,7 @@ export const FullscreenModal = ({ isOpen, onClose, dashboardUrl, dashboardName }
 
               {/* Overlay para esconder botões de compartilhar (canto inferior direito) */}
               <div
-                className="absolute bottom-0 right-0 w-[200px] h-[37px] z-10 flex items-center justify-center"
+                className="absolute bottom-0 right-0 w-[200px] h-[36px] z-10 flex items-center justify-center"
                 style={{ backgroundColor: '#eaeaea' }}
               >
                 <span className="text-xl font-bold text-gradient-orange">
