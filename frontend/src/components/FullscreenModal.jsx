@@ -117,14 +117,14 @@ export const FullscreenModal = ({ isOpen, onClose, dashboardUrl, dashboardName }
                 referrerPolicy="strict-origin-when-cross-origin"
               />
 
-              {/* Overlay para esconder botões de compartilhar (canto inferior esquerdo) */}
+              {/* Overlay para esconder botões de compartilhar (canto inferior direito) */}
               <div
                 style={{
                   position: 'absolute',
                   bottom: 0,
-                  left: 0,
+                  right: 0, // ajusta para o canto inferior direito
                   width: '200px', // ajuste conforme necessário para cobrir os botões
-                  height: '60px', // ajuste a altura conforme necessário
+                  height: '38px', // ajuste conforme necessário
                   backgroundColor: 'white',
                   zIndex: 10,
                 }}
