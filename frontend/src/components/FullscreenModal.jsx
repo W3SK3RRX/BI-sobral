@@ -71,24 +71,25 @@ export const FullscreenModal = ({ isOpen, onClose, dashboardUrl, dashboardName }
           {/* Conteúdo */}
           <div className="relative flex-1 h-[calc(100%-4rem)]">
             {/* Marca d'água repetida */}
-
             {user && (
               <div
                 className="absolute inset-0 pointer-events-none z-40"
                 style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  justifyContent: 'center',
+                  alignContent: 'center',
                   opacity: 0.06,
+                  fontSize: '2.5rem',
+                  color: 'black',
                   transform: 'rotate(-30deg)',
-                  backgroundImage: `url("data:image/svg+xml;utf8,${encodeURIComponent(`
-                    <svg xmlns='http://www.w3.org/2000/svg' width='300' height='150'>
-                      <text x='0' y='50%' font-size='32' font-family='Arial' font-weight='bold' fill='black' opacity='0.2'>
-                        ${user.username || user.name}
-                      </text>
-                    </svg>
-                  `)}")`,
-                  backgroundRepeat: 'repeat',
-                  backgroundSize: '300px 150px',
+                  lineHeight: '3rem',
                 }}
-              />
+              >
+                {Array(100).fill(user.username || user.name).map((text, idx) => (
+                  <span key={idx} style={{ margin: '20px' }}>{text}</span>
+                ))}
+              </div>
             )}
 
             {isLoading && (
@@ -118,8 +119,7 @@ export const FullscreenModal = ({ isOpen, onClose, dashboardUrl, dashboardName }
 
               {/* Overlay para esconder botões de compartilhar (canto inferior direito) */}
               <div
-                className="absolute bottom-0 right-0 w-[200px] h-[36px] z-10 flex items-center justify-center"
-                style={{ backgroundColor: '#eaeaea' }}
+                className="absolute bottom-0 right-0 w-[200px] h-[32px] bg-white z-10 flex items-center justify-center"
               >
                 <span className="text-xl font-bold text-gradient-orange">
                   PowerBI - Sobral
