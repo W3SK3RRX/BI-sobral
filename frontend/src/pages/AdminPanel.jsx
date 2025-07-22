@@ -129,7 +129,9 @@ const AdminPanel = () => {
               <tbody>
                 {usuarios.map(u => (
                   <tr key={u.id} className="border-b hover:bg-gray-50">
-                    <td className="py-2 px-4">{u.username}</td>
+                    <td className="py-2 px-4">
+                      {u.last_name ? `${u.username} ${u.last_name}` : u.username}
+                    </td>
                     <td className="py-2 px-4">{u.access_level}</td>
                     <td className="py-2 px-4 space-x-2">
                       <button

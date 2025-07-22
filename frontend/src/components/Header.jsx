@@ -86,7 +86,7 @@ export const Header = ({ isTestMode = false }) => {
             <div className="hidden md:flex items-center space-x-3">
               <div className="text-right">
                 <p className="text-sm font-medium text-gray-900">
-                  {user?.username}
+                  {user?.last_name ? `${user.username} ${user.last_name}` : user.username}
                 </p>
               </div>
             </div>
@@ -100,8 +100,11 @@ export const Header = ({ isTestMode = false }) => {
                 >
                   <Avatar className="h-10 w-10 rounded-full shadow-md border border-orange-300 bg-gradient-to-br from-orange-100 to-orange-200 flex items-center justify-center">
                     <AvatarFallback className="text-orange-600 font-semibold text-sm">
-                      {getInitials(user?.username || 'U')}
+                      {getInitials(
+                        user?.last_name ? `${user.username} ${user.last_name}` : user.username
+                      )}
                     </AvatarFallback>
+
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
@@ -111,7 +114,7 @@ export const Header = ({ isTestMode = false }) => {
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">
-                      {user?.username}
+                      {user?.last_name ? `${user.username} ${user.last_name}` : user.username}
                     </p>
                     <p className="text-xs leading-none text-muted-foreground">
                       {user?.email}
