@@ -71,6 +71,7 @@ def get_me(request):
     return Response({
         "id": user.id,
         "username": user.username,
+        "last_name":user.last_name,
         "email": user.email,
         "access_level": user.access_level,
         "primeiro_acesso": user.primeiro_acesso  # 👈 adicione isso
