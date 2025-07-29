@@ -79,7 +79,7 @@ export const FullscreenModal = ({ isOpen, onClose, dashboardUrl, dashboardName }
                   flexWrap: 'wrap',
                   justifyContent: 'center',
                   alignContent: 'center',
-                  opacity: 0.03,
+                  opacity: 0.015,
                   fontSize: '2.5rem',
                   color: 'black',
                   transform: 'rotate(-30deg)',
