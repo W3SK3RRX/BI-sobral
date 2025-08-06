@@ -74,12 +74,12 @@ export const DashboardCard = ({ dashboard, index }) => {
                   )}
                 </div>
               </div>
-              <Badge 
+              {/*<Badge 
                 variant="outline" 
                 className={`text-xs ${getLevelColor(dashboard.nivel_minimo)}`}
               >
                 {getLevelText(dashboard.nivel_minimo)}
-              </Badge>
+              </Badge>*/}
             </div>
           </CardHeader>
           
