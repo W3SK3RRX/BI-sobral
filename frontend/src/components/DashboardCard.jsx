@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BarChart3, Maximize2 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -11,40 +10,6 @@ export const DashboardCard = ({ dashboard, index }) => {
 
   const handleOpenDashboard = () => {
     setIsFullscreen(true);
-  };
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
-  };
-
-  const getLevelColor = (level) => {
-    switch (level) {
-      case 'ADMIN':
-        return 'bg-red-100 text-red-800 border-red-200';
-      case 'GESTOR':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'USUARIO':
-        return 'bg-green-100 text-green-800 border-green-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  const getLevelText = (level) => {
-    switch (level) {
-      case 'ADMIN':
-        return 'Administrador';
-      case 'GESTOR':
-        return 'Gestor';
-      case 'USUARIO':
-        return 'Usuário';
-      default:
-        return level;
-    }
   };
 
   return (
@@ -74,12 +39,7 @@ export const DashboardCard = ({ dashboard, index }) => {
                   )}
                 </div>
               </div>
-              {/*<Badge 
-                variant="outline" 
-                className={`text-xs ${getLevelColor(dashboard.nivel_minimo)}`}
-              >
-                {getLevelText(dashboard.nivel_minimo)}
-              </Badge>*/}
+              
             </div>
           </CardHeader>
           
