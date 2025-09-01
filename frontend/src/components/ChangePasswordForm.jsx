@@ -1,8 +1,7 @@
-// ChangePasswordForm.jsx
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth.jsx';
-import { authAPI } from '@/lib/api'; // ajuste o path se necessário
+import { authAPI } from '@/lib/api'; // confira o caminho / nome do arquivo
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -101,8 +100,9 @@ export const ChangePasswordForm = ({ mode = 'auth' }) => {
                   <Label htmlFor="email">E-mail</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input id="email" type="email" placeholder="seu@email.com" value={email}
-                      onChange={(e) => setEmail(e.target.value)} className="pl-10 border-gradient-orange focus:ring-primary" required />
+                    <Input id="email" type="email" placeholder="seu@email.com"
+                           value={email} onChange={(e) => setEmail(e.target.value)}
+                           className="pl-10 border-gradient-orange focus:ring-primary" required />
                   </div>
                 </div>
               )}
@@ -111,10 +111,11 @@ export const ChangePasswordForm = ({ mode = 'auth' }) => {
                 <Label htmlFor="currentPassword">Senha Atual</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input id="currentPassword" type={show.current ? 'text' : 'password'} placeholder="••••••••" value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)} className="pl-10 pr-10 border-gradient-orange focus:ring-primary" required />
+                  <Input id="currentPassword" type={show.current ? 'text' : 'password'} placeholder="••••••••"
+                         value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)}
+                         className="pl-10 pr-10 border-gradient-orange focus:ring-primary" required />
                   <button type="button" onClick={() => setShow(s => ({ ...s, current: !s.current }))}
-                    className="absolute right-3 top-3 text-muted-foreground hover:text-primary transition-colors">
+                          className="absolute right-3 top-3 text-muted-foreground hover:text-primary transition-colors">
                     {show.current ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
@@ -124,10 +125,11 @@ export const ChangePasswordForm = ({ mode = 'auth' }) => {
                 <Label htmlFor="newPassword">Nova Senha</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input id="newPassword" type={show.new ? 'text' : 'password'} placeholder="••••••••" value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)} className="pl-10 pr-10 border-gradient-orange focus:ring-primary" required />
+                  <Input id="newPassword" type={show.new ? 'text' : 'password'} placeholder="••••••••"
+                         value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
+                         className="pl-10 pr-10 border-gradient-orange focus:ring-primary" required />
                   <button type="button" onClick={() => setShow(s => ({ ...s, new: !s.new }))}
-                    className="absolute right-3 top-3 text-muted-foreground hover:text-primary transition-colors">
+                          className="absolute right-3 top-3 text-muted-foreground hover:text-primary transition-colors">
                     {show.new ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
@@ -148,12 +150,12 @@ export const ChangePasswordForm = ({ mode = 'auth' }) => {
                 <Label htmlFor="confirmPassword">Confirmar Nova Senha</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input id="confirmPassword" type={show.confirm ? 'text' : 'password'} placeholder="••••••••" value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className={`pl-10 pr-10 border-gradient-orange focus:ring-primary ${confirmPassword && !passwordsMatch ? 'border-red-300' : ''}`}
-                    required />
+                  <Input id="confirmPassword" type={show.confirm ? 'text' : 'password'} placeholder="••••••••"
+                         value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
+                         className={`pl-10 pr-10 border-gradient-orange focus:ring-primary ${confirmPassword && !passwordsMatch ? 'border-red-300' : ''}`}
+                         required />
                   <button type="button" onClick={() => setShow(s => ({ ...s, confirm: !s.confirm }))}
-                    className="absolute right-3 top-3 text-muted-foreground hover:text-primary transition-colors">
+                          className="absolute right-3 top-3 text-muted-foreground hover:text-primary transition-colors">
                     {show.confirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
@@ -161,10 +163,10 @@ export const ChangePasswordForm = ({ mode = 'auth' }) => {
               </div>
 
               <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold"
-                disabled={loading || !isPasswordValid || !passwordsMatch}>
+                      disabled={loading || !isPasswordValid || !passwordsMatch}>
                 {loading ? (
                   <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                    className="w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                              className="w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
                 ) : 'Alterar Senha'}
               </Button>
             </form>

@@ -1,4 +1,3 @@
-// api.js
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
@@ -20,36 +19,34 @@ export const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Interceptor para adicionar token
+// Anexa Authorization
 api.interceptors.request.use(
   (config) => {
     const token = Cookies.get('access_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Interceptor de refresh (não tentar quando o erro é no próprio /token/)
+// Refresh automático — mas NUNCA quando falha o próprio /token/
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
     const status = error.response?.status;
+
+    // Se a URL contém "token/" e não é o refresh, não tente refrescar
     const isAuthCall = originalRequest?.url?.includes('token/');
     const isRefreshCall = originalRequest?.url?.includes('token/refresh/');
-
-    // Não tente refresh se o erro foi no login (/token/)
     if (isAuthCall && !isRefreshCall) {
       return Promise.reject(error);
     }
 
     if (status === 401 && !originalRequest._retry && !isRefreshCall) {
       originalRequest._retry = true;
-      const refreshToken = Cookies.get('refresh_token');
 
+      const refreshToken = Cookies.get('refresh_token');
       if (!refreshToken) {
         clearTokens();
         window.location.href = '/login';
@@ -60,6 +57,7 @@ api.interceptors.response.use(
         const resp = await axios.post(`${API_BASE_URL}token/refresh/`, { refresh: refreshToken });
         const { access } = resp.data || {};
         if (!access) throw new Error('Refresh sem access token');
+
         setAccess(access);
         originalRequest.headers.Authorization = `Bearer ${access}`;
         return api(originalRequest);
@@ -74,10 +72,9 @@ api.interceptors.response.use(
   }
 );
 
-// ------------------ Autenticação ------------------
+// ================== Autenticação ==================
 export const authAPI = {
   login: async (email, password) => {
-    // retorna tokens; o app pode chamar getMe em seguida
     const response = await api.post('token/', { email, password });
     const data = response.data;
     if (data?.access) setAccess(data.access);
@@ -85,22 +82,19 @@ export const authAPI = {
     return data;
   },
 
-  getMe: async () => {
-    const response = await api.get('me/');
-    return response.data;
-  },
+  getMe: async () => (await api.get('me/')).data,
 
-  // troca de senha autenticado (exige senha atual, nova e confirmação)
+  // Troca de senha autenticado
   changePassword: async (oldPassword, newPassword, confirmPassword) => {
     const response = await api.post('trocar-senha/', {
       senha_atual: oldPassword,
       nova_senha: newPassword,
-      confirmacao: confirmPassword, // <-- padronizado com backend
+      confirmacao: confirmPassword, // padronizado com backend
     });
     return response.data;
   },
 
-  // troca de senha expirada (AllowAny)
+  // Troca de senha expirada (AllowAny)
   changePasswordExpired: async (email, oldPassword, newPassword, confirmPassword) => {
     const response = await api.post('trocar-senha-expirada/', {
       email,
@@ -111,12 +105,10 @@ export const authAPI = {
     return response.data;
   },
 
-  logout: () => {
-    clearTokens();
-  },
+  logout: () => clearTokens(),
 };
 
-// ---------------- Dashboards e Categorias ----------------
+// ============ Dashboards & Categorias ============
 export const dashboardAPI = {
   getDashboards: async () => (await api.get('dashboards/')).data,
   getDashboardById: async (id) => (await api.get(`dashboards/${id}/`)).data,
@@ -126,7 +118,7 @@ export const dashboardAPI = {
   deleteDashboard: async (id) => (await api.delete(`dashboards/${id}/`)).data,
 };
 
-// ---------------- Admin: usuários ----------------
+// ================== Admin: usuários ==================
 export const userAPI = {
   getUsers: async () => (await api.get('users/')).data,
   getUser: async (id) => (await api.get(`users/${id}/`)).data,
