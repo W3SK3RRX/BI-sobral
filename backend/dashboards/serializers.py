@@ -1,8 +1,6 @@
 from rest_framework import serializers
 from .models import User, Category, Dashboard
-from rest_framework import serializers
 from django.utils import timezone
-
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -12,8 +10,8 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             "id",
-            "username",      
-            "last_name",     
+            "username",
+            "last_name",
             "email",
             "access_level",
             "password"
@@ -23,13 +21,14 @@ class UserSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        # ✅ Se não vier username, usa a parte antes do @ do email
         if not validated_data.get('username'):
             validated_data['username'] = validated_data['email'].split('@')[0]
 
         user = User.objects.create_user(**validated_data)
+        user.senha_alterada_em = timezone.now() # <-- ALTERAÇÃO AQUI
+        user.save()
         return user
-    
+
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -56,7 +55,6 @@ class DashboardSerializer(serializers.ModelSerializer):
         ]
 
 
-
 class TrocarSenhaSerializer(serializers.Serializer):
     nova_senha = serializers.CharField(write_only=True, min_length=6)
 
@@ -72,4 +70,3 @@ class TrocarSenhaSerializer(serializers.Serializer):
         user.senha_alterada_em = timezone.now()
         user.save()
         return user
-
