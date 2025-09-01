@@ -1,7 +1,8 @@
+// api.js
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const API_BASE_URL = 'https://apibi.laboratoriosobral.com.br/api/';
+const API_BASE_URL = 'https://apibi.laboratoriosobral.com.br/api';
 
 const setAccess = (access) =>
   Cookies.set('access_token', access, { expires: 1, sameSite: 'Lax', secure: true, path: '/' });
@@ -14,12 +15,27 @@ const clearTokens = () => {
   Cookies.remove('refresh_token', { path: '/' });
 };
 
+// Ajuda a padronizar mensagens (mesmo quando o back não envia body)
+const unwrapAxiosError = (error) => {
+  const data = error?.response?.data;
+  if (data && typeof data === 'object') {
+    if (typeof data.detail === 'string') return data.detail;
+    if (typeof data.mensagem === 'string') return data.mensagem;
+    const key = Object.keys(data)[0];
+    if (key) {
+      const v = data[key];
+      return Array.isArray(v) ? v[0] : String(v);
+    }
+  }
+  return error?.message || 'Erro inesperado';
+};
+
 export const api = axios.create({
   baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Anexa Authorization
+// Interceptor para anexar Authorization
 api.interceptors.request.use(
   (config) => {
     const token = Cookies.get('access_token');
@@ -29,27 +45,32 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Refresh automático — mas NUNCA quando falha o próprio /token/
+// Interceptor de resposta: NÃO fazer refresh se quem falhou foi /token/
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    const status = error.response?.status;
+    const status = error?.response?.status;
 
-    // Se a URL contém "token/" e não é o refresh, não tente refrescar
-    const isAuthCall = originalRequest?.url?.includes('token/');
-    const isRefreshCall = originalRequest?.url?.includes('token/refresh/');
+    // blindagem contra loops
+    const url = (originalRequest?.url || '').toLowerCase();
+    const isAuthCall = url.includes('token/');
+    const isRefreshCall = url.includes('token/refresh/');
+
+    // Nunca tente refresh no erro do login
     if (isAuthCall && !isRefreshCall) {
+      // Devolva o erro “cru” pro componente tratar (sem redirecionar aqui)
       return Promise.reject(error);
     }
 
+    // Tente refresh apenas uma vez em chamadas protegidas
     if (status === 401 && !originalRequest._retry && !isRefreshCall) {
       originalRequest._retry = true;
 
       const refreshToken = Cookies.get('refresh_token');
       if (!refreshToken) {
+        // Não force redirect aqui; deixe a tela que chamou decidir o fluxo
         clearTokens();
-        window.location.href = '/login';
         return Promise.reject(error);
       }
 
@@ -63,7 +84,6 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (err) {
         clearTokens();
-        window.location.href = '/login';
         return Promise.reject(err);
       }
     }
@@ -76,25 +96,25 @@ api.interceptors.response.use(
 export const authAPI = {
   login: async (email, password) => {
     const response = await api.post('token/', { email, password });
-    const data = response.data;
-    if (data?.access) setAccess(data.access);
-    if (data?.refresh) setRefresh(data.refresh);
+    const data = response.data || {};
+    if (data.access) setAccess(data.access);
+    if (data.refresh) setRefresh(data.refresh);
     return data;
   },
 
   getMe: async () => (await api.get('me/')).data,
 
-  // Troca de senha autenticado
+  // Troca autenticada
   changePassword: async (oldPassword, newPassword, confirmPassword) => {
     const response = await api.post('trocar-senha/', {
       senha_atual: oldPassword,
       nova_senha: newPassword,
-      confirmacao: confirmPassword, // padronizado com backend
+      confirmacao: confirmPassword,
     });
     return response.data;
   },
 
-  // Troca de senha expirada (AllowAny)
+  // Troca expirada (AllowAny)
   changePasswordExpired: async (email, oldPassword, newPassword, confirmPassword) => {
     const response = await api.post('trocar-senha-expirada/', {
       email,
@@ -128,3 +148,6 @@ export const userAPI = {
 };
 
 export default api;
+
+// Exporte o helper para reuso nos componentes (opcional)
+export const parseApiError = unwrapAxiosError;

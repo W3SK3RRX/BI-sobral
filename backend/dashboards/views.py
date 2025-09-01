@@ -20,6 +20,7 @@ from rest_framework import status
 from .serializers import TrocarSenhaExpiradaSerializer
 
 
+
 # 🔐 View personalizada para login via e-mail
 UserModel = get_user_model()
 
@@ -39,8 +40,10 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         if not user.check_password(password):
             raise AuthenticationFailed("Senha incorreta.")
 
+        # dentro de MyTokenObtainPairSerializer.validate
         if user.senha_expirada():
-            raise AuthenticationFailed("Sua senha expirou. Por favor, altere sua senha para continuar.")
+            raise AuthenticationFailed("SENHA_EXPIRADA")
+
 
         refresh = RefreshToken.for_user(user)
         ActiveSession.objects.filter(user=user).delete()

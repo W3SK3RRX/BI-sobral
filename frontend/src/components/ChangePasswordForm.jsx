@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth.jsx';
-import { authAPI } from '@/lib/api'; // confira o caminho / nome do arquivo
+import { authAPI } from '@/lib/api'; // ajuste o path conforme seu projeto
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

@@ -43,8 +43,13 @@ export const LoginForm = () => {
           setError(msg);
         }
       }
-    } catch (e2) {
-      const msg = e2?.response?.data?.detail || e2?.response?.data?.mensagem || e2?.message || 'Erro no login.';
+    } catch (err) {
+      const msg =
+        err?.response?.data?.detail ||
+        err?.response?.data?.mensagem ||
+        err?.message ||
+        'Erro no login.';
+
       const isExpired = typeof msg === 'string' && (msg === 'SENHA_EXPIRADA' || msg.toLowerCase().includes('expirou'));
       if (isExpired) {
         sessionStorage.setItem('login_email', email);
