@@ -2,7 +2,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const API_BASE_URL = 'https://apibi.laboratoriosobral.com.br/api';
+const API_BASE_URL = 'https://apibi.laboratoriosobral.com.br/api/';
 
 const setAccess = (access) =>
   Cookies.set('access_token', access, { expires: 1, sameSite: 'Lax', secure: true, path: '/' });

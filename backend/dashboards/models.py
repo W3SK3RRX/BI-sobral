@@ -4,6 +4,7 @@ from django.utils import timezone
 from datetime import timedelta
 from django.conf import settings
 
+
 class User(AbstractUser):
     USER_LEVELS = (
         ('ADMIN', 'Administrador'),
@@ -13,17 +14,37 @@ class User(AbstractUser):
 
     email = models.EmailField(unique=True)
     access_level = models.CharField(max_length=10, choices=USER_LEVELS, default='USUARIO')
-    senha_alterada_em = models.DateTimeField(null=True, blank=True) # <-- ALTERAÇÃO AQUI
+    senha_alterada_em = models.DateTimeField(null=True, blank=True)
     primeiro_acesso = models.BooleanField(default=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
+    # >>>>>>>>>>>>>>> ADIÇÕES IMPORTANTES <<<<<<<<<<<<<<<
+    def set_password(self, raw_password):
+        super().set_password(raw_password)
+        # toda troca de senha atualiza o timestamp
+        self.senha_alterada_em = timezone.now()
+
+    def set_unusable_password(self):
+        super().set_unusable_password()
+        # se por algum motivo definirem senha inutilizável, também atualiza
+        self.senha_alterada_em = timezone.now()
+
+    def save(self, *args, **kwargs):
+        # garante valor na criação via admin/shell (sem passar pelo serializer)
+        if self._state.adding and not self.senha_alterada_em:
+            self.senha_alterada_em = timezone.now()
+        super().save(*args, **kwargs)
+    # >>>>>>>>>>>>>>> FIM DAS ADIÇÕES <<<<<<<<<<<<<<<
+
     def senha_expirada(self):
         """Valida se a senha expirou (apenas para usuários não-admin)."""
-        if self.access_level == 'ADMIN' or self.senha_alterada_em is None:
+        if self.access_level == 'ADMIN':
             return False
-        return timezone.now() > self.senha_alterada_em + timedelta(days=30)
+        # se por acaso estiver nulo, considere expirada (opcional, mas mais seguro):
+        base = self.senha_alterada_em or (timezone.now() - timedelta(days=365*50))
+        return timezone.now() > base + timedelta(days=30)
 
     def __str__(self):
         return f"{self.username} ({self.email})"
