@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
-from .views import MyTokenObtainPairView, get_me, trocar_senha, MyTokenRefreshView
+from .views import MyTokenObtainPairView, get_me, trocar_senha, MyTokenRefreshView, trocar_senha_expirada
 from django.urls import path
 
 
@@ -20,4 +20,5 @@ urlpatterns = [
     path('token/refresh/', MyTokenRefreshView.as_view(), name='token_refresh'),
     path('me/', get_me),
     path('trocar-senha/', trocar_senha),
+    path('trocar-senha-expirada/', trocar_senha_expirada),
 ]

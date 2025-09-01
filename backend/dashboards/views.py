@@ -6,7 +6,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import InvalidToken
 from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth import get_user_model
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes,throttle_classes
 from rest_framework.response import Response
 from .models import User, Category, Dashboard, ActiveSession
 from .serializers import UserSerializer, CategorySerializer, DashboardSerializer
@@ -14,6 +14,10 @@ from .serializers import TrocarSenhaSerializer
 from django.db.models import Q
 from django.utils import timezone
 from dashboards.permissions import ReadOnlyOrAdmin
+from rest_framework.permissions import AllowAny
+from rest_framework.throttling import AnonRateThrottle
+from rest_framework import status
+from .serializers import TrocarSenhaExpiradaSerializer
 
 
 # 🔐 View personalizada para login via e-mail
@@ -129,3 +133,14 @@ def trocar_senha(request):
 
         return Response({'mensagem': 'Senha alterada com sucesso.'})
     return Response(serializer.errors, status=400)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+@throttle_classes([AnonRateThrottle])  # limitado por DEFAULT_THROTTLE_RATES se configurado
+def trocar_senha_expirada(request):
+    serializer = TrocarSenhaExpiradaSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({'mensagem': 'Senha alterada. Faça login novamente.'}, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
