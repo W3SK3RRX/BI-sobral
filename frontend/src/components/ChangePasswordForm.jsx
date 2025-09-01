@@ -10,17 +10,15 @@ import { Eye, EyeOff, Lock, Shield, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export const ChangePasswordForm = () => {
-  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPasswords, setShowPasswords] = useState({
-    current: false,
     new: false,
     confirm: false,
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  
+
   const { changePassword, user } = useAuth();
   const navigate = useNavigate();
 
@@ -50,14 +48,14 @@ export const ChangePasswordForm = () => {
 
     setLoading(true);
 
-    const result = await changePassword(currentPassword, newPassword);
-    
+    const result = await changePassword(newPassword);
+
     if (result.success) {
       navigate('/dashboard');
     } else {
       setError(result.error);
     }
-    
+
     setLoading(false);
   };
 
@@ -91,14 +89,14 @@ export const ChangePasswordForm = () => {
                 Alterar Senha
               </CardTitle>
               <CardDescription className="text-muted-foreground">
-                {user?.primeiro_acesso 
+                {user?.primeiro_acesso
                   ? 'Por segurança, altere sua senha no primeiro acesso'
                   : 'Defina uma nova senha para sua conta'
                 }
               </CardDescription>
             </div>
           </CardHeader>
-          
+
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
@@ -112,30 +110,7 @@ export const ChangePasswordForm = () => {
                   </Alert>
                 </motion.div>
               )}
-              
-              <div className="space-y-2">
-                <Label htmlFor="currentPassword">Senha Atual</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="currentPassword"
-                    type={showPasswords.current ? 'text' : 'password'}
-                    placeholder="••••••••"
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    className="pl-10 pr-10 border-gradient-orange focus:ring-primary"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => togglePasswordVisibility('current')}
-                    className="absolute right-3 top-3 text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    {showPasswords.current ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="newPassword">Nova Senha</Label>
                 <div className="relative">
@@ -174,9 +149,8 @@ export const ChangePasswordForm = () => {
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.1 }}
-                        className={`flex items-center space-x-2 text-sm ${
-                          req.met ? 'text-green-600' : 'text-muted-foreground'
-                        }`}
+                        className={`flex items-center space-x-2 text-sm ${req.met ? 'text-green-600' : 'text-muted-foreground'
+                          }`}
                       >
                         <CheckCircle className={`h-3 w-3 ${req.met ? 'text-green-600' : 'text-gray-300'}`} />
                         <span>{req.text}</span>
@@ -185,7 +159,7 @@ export const ChangePasswordForm = () => {
                   </div>
                 </motion.div>
               )}
-              
+
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Confirmar Nova Senha</Label>
                 <div className="relative">
@@ -196,9 +170,8 @@ export const ChangePasswordForm = () => {
                     placeholder="••••••••"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className={`pl-10 pr-10 border-gradient-orange focus:ring-primary ${
-                      confirmPassword && !passwordsMatch ? 'border-red-300' : ''
-                    }`}
+                    className={`pl-10 pr-10 border-gradient-orange focus:ring-primary ${confirmPassword && !passwordsMatch ? 'border-red-300' : ''
+                      }`}
                     required
                   />
                   <button
@@ -213,7 +186,7 @@ export const ChangePasswordForm = () => {
                   <p className="text-sm text-red-600">As senhas não coincidem</p>
                 )}
               </div>
-              
+
               <Button
                 type="submit"
                 className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold transition-colors"
@@ -236,4 +209,3 @@ export const ChangePasswordForm = () => {
     </div>
   );
 };
-
