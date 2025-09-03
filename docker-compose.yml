@@ -4,7 +4,7 @@ services:
   backend:
     build: ./backend
     container_name: bi_backend
-    restart: always
+    restart: unless-stopped
     env_file:
       - .env
     volumes:
@@ -19,31 +19,30 @@ services:
   frontend:
     build: ./frontend
     container_name: bi_frontend
-    restart: always
+    restart: unless-stopped
     expose:
       - "80"
-
 
   nginx:
     image: nginx:stable-alpine
     container_name: bi_nginx
-    restart: always
+    restart: unless-stopped
+    # Porta SOMENTE interna via loopback (sem 443)
     ports:
-      - "80:80"
-      - "443:443"
+      - "127.0.0.1:8081:80"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-      - /etc/letsencrypt:/etc/letsencrypt
-      - ./frontend/dist:/usr/share/nginx/html   # ✅ monta o build do React
-      - static_volume:/app/static
-      - media_volume:/app/media
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./frontend/dist:/usr/share/nginx/html:ro
+      - static_volume:/app/static:ro
+      - media_volume:/app/media:ro
     depends_on:
       - backend
+      - frontend
 
   db:
     image: postgres:15
     container_name: bi_db
-    restart: always
+    restart: unless-stopped
     env_file:
       - .env
     environment:
@@ -57,4 +56,3 @@ volumes:
   db_data:
   static_volume:
   media_volume:
-  frontend_build:
