@@ -20,32 +20,38 @@ from rest_framework import status
 from .serializers import TrocarSenhaExpiradaSerializer
 
 
-
 # 🔐 View personalizada para login via e-mail
 UserModel = get_user_model()
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
-        email = attrs.get("email")  # <-- agora pega 'email'
+        email = attrs.get("email")
         password = attrs.get("password")
 
         if not email or not password:
-            raise AuthenticationFailed("E-mail e senha são obrigatórios.")
+            # ❗ agora devolve dict padronizado
+            raise AuthenticationFailed({"code": "MISSING_CREDENTIALS",
+                                        "message": "E-mail e senha são obrigatórios."})
 
         try:
             user = UserModel.objects.get(email=email)
         except UserModel.DoesNotExist:
-            raise AuthenticationFailed("E-mail não encontrado.")
+            raise AuthenticationFailed({"code": "EMAIL_NOT_FOUND",
+                                        "message": "E-mail não encontrado."})
 
         if not user.check_password(password):
-            raise AuthenticationFailed("Senha incorreta.")
+            raise AuthenticationFailed({"code": "BAD_PASSWORD",
+                                        "message": "Senha incorreta."})
 
-        # dentro de MyTokenObtainPairSerializer.validate
-        if user.senha_expirada():
-            raise AuthenticationFailed("SENHA_EXPIRADA")
-
+        # 🔒 Sinalização robusta de expiração
+        if hasattr(user, 'senha_expirada') and user.senha_expirada():
+            # DRF aceita dict em 'detail'; o front deve checar 'detail.code'
+            raise AuthenticationFailed({"code": "PASSWORD_EXPIRED",
+                                        "message": "Sua senha expirou. Defina uma nova para continuar."})
 
         refresh = RefreshToken.for_user(user)
+
+        # zera sessões antigas e abre uma nova
         ActiveSession.objects.filter(user=user).delete()
         ActiveSession.objects.create(user=user, refresh_token=str(refresh))
 
@@ -140,10 +146,14 @@ def trocar_senha(request):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-@throttle_classes([AnonRateThrottle])  # limitado por DEFAULT_THROTTLE_RATES se configurado
+@throttle_classes([AnonRateThrottle])
 def trocar_senha_expirada(request):
     serializer = TrocarSenhaExpiradaSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save()
+        user = serializer.save()
+        # ✅ garante que o carimbo foi atualizado
+        if hasattr(user, 'senha_alterada_em'):
+            user.senha_alterada_em = timezone.now()
+            user.save(update_fields=['senha_alterada_em'])
         return Response({'mensagem': 'Senha alterada. Faça login novamente.'}, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

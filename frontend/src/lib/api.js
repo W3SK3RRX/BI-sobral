@@ -36,14 +36,51 @@ export const api = axios.create({
 });
 
 // Interceptor para anexar Authorization
-api.interceptors.request.use(
-  (config) => {
-    const token = Cookies.get('access_token');
-    if (token) config.headers.Authorization = `Bearer ${token}`;
-    return config;
-  },
-  (error) => Promise.reject(error)
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    const status = error?.response?.status;
+
+    const url = (originalRequest?.url || '').toLowerCase();
+    const isAuthCall = url.includes('token/');            // /token/ (login)
+    const isRefreshCall = url.includes('token/refresh/'); // /token/refresh/
+    const isChangeExpired = url.includes('trocar-senha-expirada');
+
+    // Nunca tente refresh no erro do login ou da troca expirada
+    if ((isAuthCall && !isRefreshCall) || isChangeExpired) {
+      return Promise.reject(error);
+    }
+
+    // Tente refresh apenas uma vez em chamadas protegidas
+    if (status === 401 && !originalRequest._retry && !isRefreshCall) {
+      originalRequest._retry = true;
+
+      const refreshToken = Cookies.get('refresh_token');
+      if (!refreshToken) {
+        clearTokens();
+        return Promise.reject(error);
+      }
+
+      try {
+        const resp = await axios.post(`${API_BASE_URL}token/refresh/`, { refresh: refreshToken });
+        const { access } = resp.data || {};
+        if (!access) throw new Error('Refresh sem access token');
+
+        setAccess(access);
+        originalRequest.headers.Authorization = `Bearer ${access}`;
+        return api(originalRequest);
+      } catch (err) {
+        clearTokens();
+        return Promise.reject(err);
+      }
+    }
+
+    return Promise.reject(error);
+  }
 );
+
+
 
 // Interceptor de resposta: NÃO fazer refresh se quem falhou foi /token/
 api.interceptors.response.use(
@@ -116,14 +153,22 @@ export const authAPI = {
 
   // Troca expirada (AllowAny)
   changePasswordExpired: async (email, oldPassword, newPassword, confirmPassword) => {
-    const response = await api.post('trocar-senha-expirada/', {
-      email,
-      senha_atual: oldPassword,
-      nova_senha: newPassword,
-      confirmacao: confirmPassword,
-    });
+    const response = await api.post(
+      'trocar-senha-expirada/',
+      {
+        email,
+        senha_atual: oldPassword,
+        nova_senha: newPassword,
+        confirmacao: confirmPassword,
+      },
+      {
+        // força sem Bearer, mesmo que algum outro interceptor tente anexar
+        headers: { Authorization: undefined },
+      }
+    );
     return response.data;
   },
+
 
   logout: () => clearTokens(),
 };

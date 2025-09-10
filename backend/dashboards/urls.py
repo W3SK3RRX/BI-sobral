@@ -14,8 +14,6 @@ router.register(r'dashboards', DashboardViewSet, basename='dashboard')
 
 urlpatterns = [
     path('', include(router.urls)),
-
-    # 🔐 JWT Authentication
     path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', MyTokenRefreshView.as_view(), name='token_refresh'),
     path('me/', get_me),

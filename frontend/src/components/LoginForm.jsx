@@ -33,25 +33,26 @@ export const LoginForm = () => {
         } else {
           navigate('/dashboard');
         }
-      } else {
-        const msg = result?.error || 'Falha de autenticação.';
-        const isExpired = typeof msg === 'string' && (msg === 'SENHA_EXPIRADA' || msg.toLowerCase().includes('expirou'));
-        if (isExpired) {
-          sessionStorage.setItem('login_email', email);
-          navigate('/change-password?expired=1');
-        } else {
-          setError(msg);
-        }
+        return;
       }
+
+      // Agora o useAuth já normaliza para 'PASSWORD_EXPIRED' quando for o caso
+      if (result?.error === 'PASSWORD_EXPIRED') {
+        sessionStorage.setItem('login_email', email);
+        navigate('/change-password?expired=1');
+        return;
+      }
+
+      setError(result?.error || 'Falha de autenticação.');
     } catch (err) {
+      // Cascata de segurança
       const msg =
         err?.response?.data?.detail ||
         err?.response?.data?.mensagem ||
         err?.message ||
         'Erro no login.';
 
-      const isExpired = typeof msg === 'string' && (msg === 'SENHA_EXPIRADA' || msg.toLowerCase().includes('expirou'));
-      if (isExpired) {
+      if (typeof msg === 'string' && /expirad/i.test(msg)) {
         sessionStorage.setItem('login_email', email);
         navigate('/change-password?expired=1');
       } else {
@@ -61,6 +62,7 @@ export const LoginForm = () => {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-orange-light p-4">
@@ -89,8 +91,8 @@ export const LoginForm = () => {
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input id="email" type="email" placeholder="seu@email.com"
-                         value={email} onChange={(e) => setEmail(e.target.value)}
-                         className="pl-10 border-gradient-orange focus:ring-primary" required />
+                    value={email} onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10 border-gradient-orange focus:ring-primary" required />
                 </div>
               </div>
 
@@ -99,10 +101,10 @@ export const LoginForm = () => {
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input id="password" type={showPassword ? 'text' : 'password'} placeholder="••••••••"
-                         value={password} onChange={(e) => setPassword(e.target.value)}
-                         className="pl-10 pr-10 border-gradient-orange focus:ring-primary" required />
+                    value={password} onChange={(e) => setPassword(e.target.value)}
+                    className="pl-10 pr-10 border-gradient-orange focus:ring-primary" required />
                   <button type="button" onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-3 text-muted-foreground hover:text-primary transition-colors">
+                    className="absolute right-3 top-3 text-muted-foreground hover:text-primary transition-colors">
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
@@ -111,7 +113,7 @@ export const LoginForm = () => {
               <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold transition-colors" disabled={loading}>
                 {loading ? (
                   <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                              className="w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                    className="w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
                 ) : 'Entrar'}
               </Button>
             </form>

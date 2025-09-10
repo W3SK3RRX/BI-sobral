@@ -21,6 +21,15 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
+  const removeTokens = () => {
+    try {
+      Cookies.remove('access_token', { path: '/' });
+      Cookies.remove('refresh_token', { path: '/' });
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+    } catch {}
+  };
+
   const checkAuth = async () => {
     try {
       const token = Cookies.get('access_token');
@@ -28,10 +37,15 @@ export const AuthProvider = ({ children }) => {
         const userData = await authAPI.getMe();
         setUser(userData);
         setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
       }
     } catch (error) {
+      // falhou ao obter /me → limpar estado e tokens
       console.error('Erro ao verificar autenticação:', error);
-      logout();
+      removeTokens();
+      setUser(null);
+      setIsAuthenticated(false);
     } finally {
       setLoading(false);
     }
@@ -39,29 +53,39 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const { access, refresh } = await authAPI.login(email, password);
-      
-      // Salvar tokens nos cookies
-      Cookies.set('access_token', access, { expires: 1 });
-      Cookies.set('refresh_token', refresh, { expires: 7 });
-
-      // Buscar dados do usuário
+      const data = await authAPI.login(email, password);
+      // tokens já foram salvos pelo authAPI.login (api.js)
       const userData = await authAPI.getMe();
       setUser(userData);
       setIsAuthenticated(true);
-
       return { success: true, user: userData };
     } catch (error) {
-      console.error('Erro no login:', error);
-      return { 
-        success: false, 
-        error: error.response?.data?.detail || 'Erro ao fazer login' 
+      // Normaliza o payload: pode ser string OU objeto em data.detail
+      const detail = error?.response?.data?.detail;
+      const code = typeof detail === 'object' ? detail?.code : undefined;
+      const msg  = typeof detail === 'string' ? detail : detail?.message;
+
+      const isExpired =
+        code === 'PASSWORD_EXPIRED' ||
+        (typeof msg === 'string' && /expirad/i.test(msg));
+
+      if (isExpired) {
+        // evita que o middleware do back barre a troca por header Authorization
+        removeTokens();
+        sessionStorage.setItem('login_email', email);
+        return { success: false, error: 'PASSWORD_EXPIRED' };
+      }
+
+      return {
+        success: false,
+        error: msg || error?.response?.data?.mensagem || 'Erro ao fazer login',
       };
     }
   };
 
   const logout = () => {
     authAPI.logout();
+    removeTokens();
     setUser(null);
     setIsAuthenticated(false);
   };
@@ -69,17 +93,13 @@ export const AuthProvider = ({ children }) => {
   const changePassword = async (oldPassword, newPassword) => {
     try {
       await authAPI.changePassword(oldPassword, newPassword);
-      
-      // Atualizar dados do usuário após trocar senha
       const userData = await authAPI.getMe();
       setUser(userData);
-      
       return { success: true };
     } catch (error) {
-      console.error('Erro ao trocar senha:', error);
-      return { 
-        success: false, 
-        error: error.response?.data?.detail || 'Erro ao trocar senha' 
+      return {
+        success: false,
+        error: error?.response?.data?.detail || 'Erro ao trocar senha',
       };
     }
   };
@@ -94,10 +114,5 @@ export const AuthProvider = ({ children }) => {
     checkAuth,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
-
