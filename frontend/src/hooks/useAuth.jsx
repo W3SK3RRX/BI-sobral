@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
       Cookies.remove('refresh_token', { path: '/' });
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
-    } catch {}
+    } catch { }
   };
 
   const checkAuth = async () => {
@@ -54,34 +54,33 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const data = await authAPI.login(email, password);
-      // tokens já foram salvos pelo authAPI.login (api.js)
       const userData = await authAPI.getMe();
       setUser(userData);
       setIsAuthenticated(true);
       return { success: true, user: userData };
     } catch (error) {
-      // Normaliza o payload: pode ser string OU objeto em data.detail
       const detail = error?.response?.data?.detail;
       const code = typeof detail === 'object' ? detail?.code : undefined;
-      const msg  = typeof detail === 'string' ? detail : detail?.message;
+      const msg = typeof detail === 'string' ? detail : detail?.message;
 
-      const isExpired =
-        code === 'PASSWORD_EXPIRED' ||
-        (typeof msg === 'string' && /expirad/i.test(msg));
-
-      if (isExpired) {
-        // evita que o middleware do back barre a troca por header Authorization
+      if (code === 'PASSWORD_EXPIRED') {
         removeTokens();
         sessionStorage.setItem('login_email', email);
         return { success: false, error: 'PASSWORD_EXPIRED' };
       }
 
-      return {
-        success: false,
-        error: msg || error?.response?.data?.mensagem || 'Erro ao fazer login',
-      };
+      if (code === 'BAD_PASSWORD') {
+        return { success: false, error: 'Senha incorreta.' };
+      }
+
+      if (code === 'EMAIL_NOT_FOUND') {
+        return { success: false, error: 'E-mail não encontrado.' };
+      }
+
+      return { success: false, error: msg || 'Erro ao fazer login' };
     }
   };
+
 
   const logout = () => {
     authAPI.logout();

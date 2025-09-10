@@ -36,33 +36,41 @@ export const LoginForm = () => {
         return;
       }
 
-      // Agora o useAuth já normaliza para 'PASSWORD_EXPIRED' quando for o caso
+      // useAuth já normaliza códigos/mensagens.
       if (result?.error === 'PASSWORD_EXPIRED') {
         sessionStorage.setItem('login_email', email);
         navigate('/change-password?expired=1');
         return;
       }
 
+      // BAD_PASSWORD / EMAIL_NOT_FOUND / mensagens genéricas já vêm prontas
       setError(result?.error || 'Falha de autenticação.');
     } catch (err) {
-      // Cascata de segurança
-      const msg =
-        err?.response?.data?.detail ||
-        err?.response?.data?.mensagem ||
-        err?.message ||
-        'Erro no login.';
-
-      if (typeof msg === 'string' && /expirad/i.test(msg)) {
-        sessionStorage.setItem('login_email', email);
-        navigate('/change-password?expired=1');
+      // Fallback defensivo (ex.: 429 ou formatos inesperados)
+      const status = err?.response?.status;
+      if (status === 429) {
+        setError('Muitas tentativas. Aguarde um minuto e tente novamente.');
       } else {
-        setError(msg);
+        const detail = err?.response?.data?.detail;
+        const msg =
+          (typeof detail === 'object' && (detail?.message || detail?.code)) ||
+          (typeof detail === 'string' && detail) ||
+          err?.response?.data?.mensagem ||
+          err?.message ||
+          'Erro no login.';
+
+        // Se o backend devolver texto contendo “expirou” por algum motivo
+        if (typeof msg === 'string' && /expirad/i.test(msg)) {
+          sessionStorage.setItem('login_email', email);
+          navigate('/change-password?expired=1');
+        } else {
+          setError(String(msg));
+        }
       }
     } finally {
       setLoading(false);
     }
   };
-
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-orange-light p-4">
@@ -82,7 +90,9 @@ export const LoginForm = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
                 <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }}>
-                  <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>
+                  <Alert variant="destructive">
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
                 </motion.div>
               )}
 
@@ -90,9 +100,16 @@ export const LoginForm = () => {
                 <Label htmlFor="email">E-mail</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input id="email" type="email" placeholder="seu@email.com"
-                    value={email} onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 border-gradient-orange focus:ring-primary" required />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="seu@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10 border-gradient-orange focus:ring-primary"
+                    required
+                    autoComplete="username"
+                  />
                 </div>
               </div>
 
@@ -100,21 +117,41 @@ export const LoginForm = () => {
                 <Label htmlFor="password">Senha</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input id="password" type={showPassword ? 'text' : 'password'} placeholder="••••••••"
-                    value={password} onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10 border-gradient-orange focus:ring-primary" required />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 text-muted-foreground hover:text-primary transition-colors">
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-10 pr-10 border-gradient-orange focus:ring-primary"
+                    required
+                    autoComplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-3 text-muted-foreground hover:text-primary transition-colors"
+                    aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                  >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
               </div>
 
-              <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold transition-colors" disabled={loading}>
+              <Button
+                type="submit"
+                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold transition-colors"
+                disabled={loading}
+              >
                 {loading ? (
-                  <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                    className="w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-                ) : 'Entrar'}
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                    className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
+                  />
+                ) : (
+                  'Entrar'
+                )}
               </Button>
             </form>
           </CardContent>
