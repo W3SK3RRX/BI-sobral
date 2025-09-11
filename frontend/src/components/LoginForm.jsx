@@ -36,35 +36,38 @@ export const LoginForm = () => {
         return;
       }
 
-      // useAuth já normaliza códigos/mensagens.
       if (result?.error === 'PASSWORD_EXPIRED') {
         sessionStorage.setItem('login_email', email);
         navigate('/change-password?expired=1');
         return;
       }
 
-      // BAD_PASSWORD / EMAIL_NOT_FOUND / mensagens genéricas já vêm prontas
       setError(result?.error || 'Falha de autenticação.');
     } catch (err) {
-      // Fallback defensivo (ex.: 429 ou formatos inesperados)
       const status = err?.response?.status;
       if (status === 429) {
         setError('Muitas tentativas. Aguarde um minuto e tente novamente.');
       } else {
-        const detail = err?.response?.data?.detail;
+        const data = err?.response?.data;
+        const detail = data?.detail;
+        const code = typeof detail === 'object' ? detail?.code : undefined;
         const msg =
-          (typeof detail === 'object' && (detail?.message || detail?.code)) ||
+          (typeof detail === 'object' && (detail?.message || '')) ||
           (typeof detail === 'string' && detail) ||
-          err?.response?.data?.mensagem ||
+          data?.mensagem ||
           err?.message ||
-          'Erro no login.';
+          '';
 
-        // Se o backend devolver texto contendo “expirou” por algum motivo
-        if (typeof msg === 'string' && /expirad/i.test(msg)) {
+        const looksExpired =
+          code === 'PASSWORD_EXPIRED' ||
+          /expirad/i.test(String(msg)) ||
+          (typeof detail === 'string' && (detail === 'SENHA_EXPIRADA' || /expirad/i.test(detail)));
+
+        if (looksExpired) {
           sessionStorage.setItem('login_email', email);
           navigate('/change-password?expired=1');
         } else {
-          setError(String(msg));
+          setError(String(msg || 'Erro no login.'));
         }
       }
     } finally {

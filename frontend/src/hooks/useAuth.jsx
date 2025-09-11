@@ -6,9 +6,7 @@ const AuthContext = createContext();
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
-  }
+  if (!context) throw new Error('useAuth deve ser usado dentro de um AuthProvider');
   return context;
 };
 
@@ -27,7 +25,7 @@ export const AuthProvider = ({ children }) => {
       Cookies.remove('refresh_token', { path: '/' });
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
-    } catch { }
+    } catch {}
   };
 
   const checkAuth = async () => {
@@ -41,7 +39,6 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(false);
       }
     } catch (error) {
-      // falhou ao obter /me → limpar estado e tokens
       console.error('Erro ao verificar autenticação:', error);
       removeTokens();
       setUser(null);
@@ -54,33 +51,52 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const data = await authAPI.login(email, password);
+      // tokens já foram salvos dentro do authAPI.login
       const userData = await authAPI.getMe();
       setUser(userData);
       setIsAuthenticated(true);
       return { success: true, user: userData };
     } catch (error) {
-      const detail = error?.response?.data?.detail;
-      const code = typeof detail === 'object' ? detail?.code : undefined;
-      const msg = typeof detail === 'string' ? detail : detail?.message;
+      // ---- DEBUG: mantenha enquanto valida; depois pode remover ----
+      console.log('[LOGIN][RAW_ERROR]', error?.response?.status, error?.config?.url);
+      console.log('[LOGIN][RAW_DATA]', JSON.stringify(error?.response?.data));
+      console.log('[LOGIN][DETAIL]', error?.response?.data?.detail);
+      // ----------------------------------------------------------------
 
-      if (code === 'PASSWORD_EXPIRED') {
+      const data   = error?.response?.data;
+      const detail = data?.detail;
+      const code   = typeof detail === 'object' ? detail?.code : undefined;
+      const msgObj = typeof detail === 'object' ? (detail?.message || '') : '';
+      const msgStr = typeof detail === 'string' ? detail : '';
+      const anyMsg = msgStr || msgObj || data?.mensagem || '';
+
+      const looksExpired =
+        code === 'PASSWORD_EXPIRED' ||
+        /expirad/i.test(anyMsg) ||
+        (typeof detail === 'string' && (detail === 'SENHA_EXPIRADA' || /expirad/i.test(detail)));
+
+      if (looksExpired) {
         removeTokens();
-        sessionStorage.setItem('login_email', email);
+        if (email) sessionStorage.setItem('login_email', email);
         return { success: false, error: 'PASSWORD_EXPIRED' };
       }
 
       if (code === 'BAD_PASSWORD') {
         return { success: false, error: 'Senha incorreta.' };
       }
-
       if (code === 'EMAIL_NOT_FOUND') {
         return { success: false, error: 'E-mail não encontrado.' };
       }
 
-      return { success: false, error: msg || 'Erro ao fazer login' };
+      let fallback = anyMsg;
+      if (!fallback && data && typeof data === 'object') {
+        const k = Object.keys(data)[0];
+        if (k) fallback = Array.isArray(data[k]) ? String(data[k][0]) : String(data[k]);
+      }
+
+      return { success: false, error: fallback || 'Erro ao fazer login' };
     }
   };
-
 
   const logout = () => {
     authAPI.logout();
@@ -96,22 +112,12 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       return { success: true };
     } catch (error) {
-      return {
-        success: false,
-        error: error?.response?.data?.detail || 'Erro ao trocar senha',
-      };
+      const err = error?.response?.data?.detail || 'Erro ao trocar senha';
+      return { success: false, error: err };
     }
   };
 
-  const value = {
-    user,
-    loading,
-    isAuthenticated,
-    login,
-    logout,
-    changePassword,
-    checkAuth,
-  };
+  const value = { user, loading, isAuthenticated, login, logout, changePassword, checkAuth };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

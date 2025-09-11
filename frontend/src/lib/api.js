@@ -8,14 +8,13 @@ const setAccess = (access) =>
   Cookies.set('access_token', access, { expires: 1, sameSite: 'Lax', secure: true, path: '/' });
 
 const setRefresh = (refresh) =>
-  Cookies.set('refresh_token', refresh, { expires: 1, sameSite: 'Lax', secure: true, path: '/' });
+  Cookies.set('refresh_token', refresh, { expires: 7, sameSite: 'Lax', secure: true, path: '/' });
 
 const clearTokens = () => {
   Cookies.remove('access_token', { path: '/' });
   Cookies.remove('refresh_token', { path: '/' });
 };
 
-// Ajuda a padronizar mensagens (mesmo quando o back não envia body)
 const unwrapAxiosError = (error) => {
   const data = error?.response?.data;
   if (data && typeof data === 'object') {
@@ -35,7 +34,25 @@ export const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Interceptor para anexar Authorization
+// === REQUEST: anexa Authorization, exceto em trocar-senha-expirada ===
+api.interceptors.request.use(
+  (config) => {
+    const url = (config.url || '').toLowerCase();
+
+    // NUNCA enviar Authorization na rota pública
+    if (url.includes('trocar-senha-expirada')) {
+      if (config.headers?.Authorization) delete config.headers.Authorization;
+      return config;
+    }
+
+    const token = Cookies.get('access_token');
+    if (token) config.headers.Authorization = `Bearer ${token}`;
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// === RESPONSE: não tentar refresh para login nem para trocar-senha-expirada ===
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -43,8 +60,8 @@ api.interceptors.response.use(
     const status = error?.response?.status;
 
     const url = (originalRequest?.url || '').toLowerCase();
-    const isAuthCall = url.includes('token/');            // /token/ (login)
-    const isRefreshCall = url.includes('token/refresh/'); // /token/refresh/
+    const isAuthCall = url.includes('token/');             // /token/ (login)
+    const isRefreshCall = url.includes('token/refresh/');  // /token/refresh/
     const isChangeExpired = url.includes('trocar-senha-expirada');
 
     // Nunca tente refresh no erro do login ou da troca expirada
@@ -58,55 +75,6 @@ api.interceptors.response.use(
 
       const refreshToken = Cookies.get('refresh_token');
       if (!refreshToken) {
-        clearTokens();
-        return Promise.reject(error);
-      }
-
-      try {
-        const resp = await axios.post(`${API_BASE_URL}token/refresh/`, { refresh: refreshToken });
-        const { access } = resp.data || {};
-        if (!access) throw new Error('Refresh sem access token');
-
-        setAccess(access);
-        originalRequest.headers.Authorization = `Bearer ${access}`;
-        return api(originalRequest);
-      } catch (err) {
-        clearTokens();
-        return Promise.reject(err);
-      }
-    }
-
-    return Promise.reject(error);
-  }
-);
-
-
-
-// Interceptor de resposta: NÃO fazer refresh se quem falhou foi /token/
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-    const status = error?.response?.status;
-
-    // blindagem contra loops
-    const url = (originalRequest?.url || '').toLowerCase();
-    const isAuthCall = url.includes('token/');
-    const isRefreshCall = url.includes('token/refresh/');
-
-    // Nunca tente refresh no erro do login
-    if (isAuthCall && !isRefreshCall) {
-      // Devolva o erro “cru” pro componente tratar (sem redirecionar aqui)
-      return Promise.reject(error);
-    }
-
-    // Tente refresh apenas uma vez em chamadas protegidas
-    if (status === 401 && !originalRequest._retry && !isRefreshCall) {
-      originalRequest._retry = true;
-
-      const refreshToken = Cookies.get('refresh_token');
-      if (!refreshToken) {
-        // Não force redirect aqui; deixe a tela que chamou decidir o fluxo
         clearTokens();
         return Promise.reject(error);
       }
@@ -151,7 +119,7 @@ export const authAPI = {
     return response.data;
   },
 
-  // Troca expirada (AllowAny)
+  // Troca expirada (AllowAny) — força sem Authorization
   changePasswordExpired: async (email, oldPassword, newPassword, confirmPassword) => {
     const response = await api.post(
       'trocar-senha-expirada/',
@@ -161,14 +129,10 @@ export const authAPI = {
         nova_senha: newPassword,
         confirmacao: confirmPassword,
       },
-      {
-        // força sem Bearer, mesmo que algum outro interceptor tente anexar
-        headers: { Authorization: undefined },
-      }
+      { headers: { Authorization: undefined } }
     );
     return response.data;
   },
-
 
   logout: () => clearTokens(),
 };
@@ -193,6 +157,4 @@ export const userAPI = {
 };
 
 export default api;
-
-// Exporte o helper para reuso nos componentes (opcional)
 export const parseApiError = unwrapAxiosError;
