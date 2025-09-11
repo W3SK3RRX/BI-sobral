@@ -39,7 +39,6 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(false);
       }
     } catch (error) {
-      // falhou ao obter /me → limpar estado e tokens
       removeTokens();
       setUser(null);
       setIsAuthenticated(false);
@@ -57,41 +56,40 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
       return { success: true, user: userData };
     } catch (error) {
-      // Normalização robusta do payload de erro
       const data = error?.response?.data;
       const detail = data?.detail;
 
       // detail pode ser objeto {code, message} OU string ("BAD_PASSWORD", "SENHA_EXPIRADA", etc.)
-      const codeFromDetailObj = typeof detail === 'object' ? detail?.code : undefined;
-      const msgFromDetailObj  = typeof detail === 'object' ? (detail?.message || '') : '';
-      const codeFromDetailStr = typeof detail === 'string' ? detail : undefined;
-      const msgFromDetailStr  = typeof detail === 'string' ? detail : '';
+      const codeFromObj  = typeof detail === 'object' ? detail?.code : undefined;
+      const msgFromObj   = typeof detail === 'object' ? (detail?.message || '') : '';
+      const codeFromStr  = typeof detail === 'string' ? detail : undefined; // ex.: "BAD_PASSWORD"
+      const msgFromStr   = typeof detail === 'string' ? detail : '';
 
-      const code = codeFromDetailObj || codeFromDetailStr;
+      const code = codeFromObj || codeFromStr;
       const message =
-        msgFromDetailObj ||
-        msgFromDetailStr ||
+        msgFromObj ||
+        msgFromStr ||
         data?.mensagem ||
         '';
 
-      // Senha expirada (qualquer uma das formas)
+      // EXPIRAÇÃO: cobre code, string e mensagens contendo "expirad"
       const looksExpired =
         code === 'PASSWORD_EXPIRED' ||
+        codeFromStr === 'SENHA_EXPIRADA' ||
         /expirad/i.test(message) ||
-        (typeof detail === 'string' && (detail === 'SENHA_EXPIRADA' || /expirad/i.test(detail)));
+        (typeof detail === 'string' && /expirad/i.test(detail));
 
       if (looksExpired) {
-        // impede vazamento de Authorization na troca expirada
         removeTokens();
         if (email) sessionStorage.setItem('login_email', email);
         return { success: false, error: 'PASSWORD_EXPIRED' };
       }
 
-      // Mensagens específicas
-      if (code === 'BAD_PASSWORD') {
+      // Específicos — trate tanto pelo code quanto pela string literal
+      if (code === 'BAD_PASSWORD' || codeFromStr === 'BAD_PASSWORD') {
         return { success: false, error: 'Senha incorreta.' };
       }
-      if (code === 'EMAIL_NOT_FOUND') {
+      if (code === 'EMAIL_NOT_FOUND' || codeFromStr === 'EMAIL_NOT_FOUND') {
         return { success: false, error: 'E-mail não encontrado.' };
       }
 
@@ -130,15 +128,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const value = {
-    user,
-    loading,
-    isAuthenticated,
-    login,
-    logout,
-    changePassword,
-    checkAuth,
-  };
+  const value = { user, loading, isAuthenticated, login, logout, changePassword, checkAuth };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

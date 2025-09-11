@@ -36,9 +36,20 @@ export const LoginForm = () => {
         return;
       }
 
-      if (result?.error === 'PASSWORD_EXPIRED') {
+      // Redireciona expirada
+      if (result?.error === 'PASSWORD_EXPIRED' || /expirad/i.test(String(result?.error))) {
         sessionStorage.setItem('login_email', email);
         navigate('/change-password?expired=1');
+        return;
+      }
+
+      // Traduções defensivas (caso chegue literalmente do back/axios)
+      if (result?.error === 'BAD_PASSWORD') {
+        setError('Senha incorreta.');
+        return;
+      }
+      if (result?.error === 'EMAIL_NOT_FOUND') {
+        setError('E-mail não encontrado.');
         return;
       }
 
@@ -50,7 +61,7 @@ export const LoginForm = () => {
       } else {
         const data = err?.response?.data;
         const detail = data?.detail;
-        const code = typeof detail === 'object' ? detail?.code : undefined;
+        const code = typeof detail === 'object' ? detail?.code : (typeof detail === 'string' ? detail : undefined);
         const msg =
           (typeof detail === 'object' && (detail?.message || '')) ||
           (typeof detail === 'string' && detail) ||
@@ -60,15 +71,25 @@ export const LoginForm = () => {
 
         const looksExpired =
           code === 'PASSWORD_EXPIRED' ||
-          /expirad/i.test(String(msg)) ||
-          (typeof detail === 'string' && (detail === 'SENHA_EXPIRADA' || /expirad/i.test(detail)));
+          code === 'SENHA_EXPIRADA' ||
+          /expirad/i.test(String(msg));
 
         if (looksExpired) {
           sessionStorage.setItem('login_email', email);
           navigate('/change-password?expired=1');
-        } else {
-          setError(String(msg || 'Erro no login.'));
+          return;
         }
+
+        if (code === 'BAD_PASSWORD' || msg === 'BAD_PASSWORD') {
+          setError('Senha incorreta.');
+          return;
+        }
+        if (code === 'EMAIL_NOT_FOUND' || msg === 'EMAIL_NOT_FOUND') {
+          setError('E-mail não encontrado.');
+          return;
+        }
+
+        setError(String(msg || 'Erro no login.'));
       }
     } finally {
       setLoading(false);
